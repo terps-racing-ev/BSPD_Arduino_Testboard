@@ -18,20 +18,23 @@ root.title("TREV-4 BSPD Test Board Control")
 root.configure(background=backgroundcolor)
 root.resizable(False, False)
 
-
-
+global arduino
+arduino = None
 comnumber = IntVar()
 comnumber.set(1)
 
 def changeCom(update):
     try:
         global arduino
+        if not arduino == None:
+            arduino.close()
         port = 'COM' + str(comnumber.get())
-        arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
+        arduino = serial.Serial(port=port, baudrate=9600, timeout=1)
         connectFeedback.config(bg="green")
         return True
     except(serial.serialutil.SerialException):
         if update:
+            arduino = None
             print("Invalid COM Number")
             connectFeedback.config(bg="red")
             root.after(100, flashCOMIndicator)
