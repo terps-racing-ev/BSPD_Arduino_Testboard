@@ -1,16 +1,15 @@
-import serial 
 import time
-import tkinter
+import serial 
 
-from tkinter import Canvas, Label, Radiobutton, Tk
+from tkinter import Canvas, Label, Radiobutton, Tk, IntVar
 
 font = "Century"
 tinyfontsize = 15
 smallfontsize = 20
 headingfontsize = 27
 titlefontsize = 35
-backgroundcolor = "#560000"
-textcolor = "#000000"
+backgroundcolor = "#000000"
+textcolor = "#FFFFFF"
 titletextcolor = "#D4AF37"
 
 root = Tk()
@@ -19,15 +18,28 @@ root.title("TREV-4 BSPD Test Board Control")
 root.configure(background=backgroundcolor)
 root.resizable(False, False)
 
-comnumber = 1
+comnumber = IntVar()
+comnumber.set(1)
 
 def changeCom():
     try:
-        arduino = serial.Serial(port='COM' + str(comnumber), baudrate=115200, timeout=.1)
+        port = 'COM' + str(comnumber.get())
+        print(port)
+        arduino = serial.Serial(port=port, baudrate=9600, timeout=1)
         connectFeedback.config(background="green")
     except(serial.serialutil.SerialException):
         print("Invalid COM Number")
-        connectFeedback.config(background="red")
+        connectFeedback.config(bg="#8B0000")
+        flashNumber = 0
+        root.after(200, flashCOMIndicator)
+        
+def flashCOMIndicator():
+    if(connectFeedback.cget("bg") == "red"):
+        connectFeedback.config(bg="#8B0000")
+    else:
+        connectFeedback.config(bg="red")
+        root.after(200, flashCOMIndicator)
+    
 
     
 
@@ -138,5 +150,4 @@ R6.grid(column=1, row=7, padx= 10)
 R7.grid(column=1, row=8, padx= 10)
 R1.invoke()
 
-changeCom()
 root.mainloop()
