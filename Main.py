@@ -1,7 +1,7 @@
 import time
 import serial 
 
-from tkinter import Canvas, Label, Radiobutton, Tk, IntVar
+from tkinter import Button, Canvas, Label, Radiobutton, Tk, IntVar
 
 font = "Century"
 tinyfontsize = 15
@@ -18,29 +18,40 @@ root.title("TREV-4 BSPD Test Board Control")
 root.configure(background=backgroundcolor)
 root.resizable(False, False)
 
+
+
 comnumber = IntVar()
 comnumber.set(1)
 
-def changeCom():
+def changeCom(update):
     try:
+        global arduino
         port = 'COM' + str(comnumber.get())
-        print(port)
-        arduino = serial.Serial(port=port, baudrate=9600, timeout=1)
-        connectFeedback.config(background="green")
+        arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
+        connectFeedback.config(bg="green")
+        return True
     except(serial.serialutil.SerialException):
-        print("Invalid COM Number")
-        connectFeedback.config(bg="#8B0000")
-        flashNumber = 0
-        root.after(200, flashCOMIndicator)
-        
+        if update:
+            print("Invalid COM Number")
+            connectFeedback.config(bg="red")
+            root.after(100, flashCOMIndicator)
+        return False
+
+def scanCom():
+    i = 1
+    for i in range(7):
+        comnumber.set(i)
+        if (changeCom(False)) == True:
+            break
+    function_list = [R1, R2, R3, R4, R5, R6, R7]
+    function_list[i - 1].invoke()
+
 def flashCOMIndicator():
     if(connectFeedback.cget("bg") == "red"):
         connectFeedback.config(bg="#8B0000")
+        root.after(200, flashCOMIndicator)
     else:
         connectFeedback.config(bg="red")
-        root.after(200, flashCOMIndicator)
-    
-
     
 
 
@@ -49,7 +60,7 @@ R1 = Radiobutton(
         text="COM1",
         variable=comnumber,
         value=1,
-        command=changeCom,
+        command=lambda: changeCom(True),
         font=("font", smallfontsize),
         background=backgroundcolor,
         fg=textcolor,
@@ -60,7 +71,7 @@ R2 = Radiobutton(
     text="COM2",
     variable=comnumber,
     value=2,
-    command=changeCom,
+    command=lambda: changeCom(True),
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
@@ -71,7 +82,7 @@ R3 = Radiobutton(
     text="COM3",
     variable=comnumber,
     value=3,
-    command=changeCom,
+    command=lambda: changeCom(True),
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
@@ -82,7 +93,7 @@ R4 = Radiobutton(
     text="COM4",
     variable=comnumber,
     value=4,
-    command=changeCom,
+    command=lambda: changeCom(True),
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
@@ -93,7 +104,7 @@ R5 = Radiobutton(
     text="COM5",
     variable=comnumber,
     value=5,
-    command=changeCom,
+    command=lambda: changeCom(True),
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
@@ -104,7 +115,7 @@ R6 = Radiobutton(
     text="COM6",
     variable=comnumber,
     value=6,
-    command=changeCom,
+    command=lambda: changeCom(True),
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
@@ -115,7 +126,7 @@ R7 = Radiobutton(
     text="COM7",
     variable=comnumber,
     value=7,
-    command=changeCom,
+    command=lambda: changeCom(True),
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
@@ -135,6 +146,14 @@ connectLabel = Label(
         background=backgroundcolor,
         fg=textcolor,
     )
+scanButton = Button(
+    root, 
+    text="Scan COM Ports",
+    font=("font", smallfontsize),
+    background=backgroundcolor,
+    fg=textcolor,
+    command=scanCom
+)
 connectFeedback = Canvas(root, width=150, height=150, bg="red")
 
 
@@ -148,6 +167,7 @@ R4.grid(column=1, row=5, padx= 10)
 R5.grid(column=1, row=6, padx= 10)
 R6.grid(column=1, row=7, padx= 10)
 R7.grid(column=1, row=8, padx= 10)
+scanButton.grid(column=1, row=9, pady=20)
 R1.invoke()
 
 root.mainloop()
