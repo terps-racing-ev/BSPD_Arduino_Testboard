@@ -1,7 +1,7 @@
 import time
 import serial 
 
-from tkinter import Button, Canvas, Label, Radiobutton, Tk, IntVar
+from tkinter import Button, Canvas, Label, Radiobutton, StringVar, Tk, IntVar
 
 font = "Century"
 tinyfontsize = 15
@@ -10,7 +10,7 @@ headingfontsize = 27
 titlefontsize = 35
 backgroundcolor = "#000000"
 textcolor = "#FFFFFF"
-titletextcolor = "#D4AF37"
+titletextcolor = "#EAB504"
 
 root = Tk()
 root.geometry("1220x800")
@@ -41,8 +41,7 @@ def changeCom(update):
         return False
 
 def scanCom():
-    i = 1
-    for i in range(7):
+    for i in range(1,8):
         comnumber.set(i)
         if (changeCom(False)) == True:
             break
@@ -160,10 +159,10 @@ scanButton = Button(
 connectFeedback = Canvas(root, width=150, height=150, bg="red")
 
 
-comLabel.grid(column=2, row=1, pady=25, columnspan=10)
+comLabel.grid(column=1, row=1, pady=25, columnspan=10)
 connectLabel.grid(column=2, row=3, rowspan=2)
 connectFeedback.grid(column=2, row=4, rowspan=10)
-R1.grid(column=1, row=2, padx= 0)
+R1.grid(column=1, row=2, padx= 10)
 R2.grid(column=1, row=3, padx= 10)
 R3.grid(column=1, row=4, padx= 10)
 R4.grid(column=1, row=5, padx= 10)
@@ -171,6 +170,6 @@ R5.grid(column=1, row=6, padx= 10)
 R6.grid(column=1, row=7, padx= 10)
 R7.grid(column=1, row=8, padx= 10)
 scanButton.grid(column=1, row=9, pady=20, padx=10)
-R1.invoke()
+comnumber.set(1)
 
 root.mainloop()
