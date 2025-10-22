@@ -170,7 +170,7 @@ R4.grid(column=1, row=5, padx= 10)
 R5.grid(column=1, row=6, padx= 10)
 R6.grid(column=1, row=7, padx= 10)
 R7.grid(column=1, row=8, padx= 10)
-scanButton.grid(column=1, row=9, pady=20)
+scanButton.grid(column=1, row=9, pady=20, padx=10)
 R1.invoke()
 
 root.mainloop()
