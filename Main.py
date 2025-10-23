@@ -24,6 +24,10 @@ arduino = None
 comnumber = IntVar()
 voltage1 = DoubleVar()
 voltage2 = DoubleVar()
+slider1 = DoubleVar()
+slider2 = DoubleVar()
+slider3 = DoubleVar()
+slider4 = DoubleVar()
 percentage1 = DoubleVar()
 percentage2 = DoubleVar()
 customInput1 = DoubleVar()
@@ -67,24 +71,53 @@ def flashCOMIndicator():
     else:
         connectFeedback.config(bg="red")
 
-def sliderUpdate(slider):
-    match slider:
+def displayUpdate(case):
+    match case:
         case 1:
-            percentage1.set((voltage1.get() / 5) * 100)
+            percentage1.set(((voltage1.get() - .5) / 4) * 100)
             pot1Voltage.config(text=str(format(voltage1.get(), f".{3}f")) + " V")
             pot1Value.config(text=str(format(percentage1.get(), f".{1}f")) + " %")
+            if percentage1.get() < 0 or percentage1.get() > 100:
+                pot1Value.config(text="N/A")
+                if voltage1.get() > 4.5:
+                    slider1.set(4.5)
+                if voltage1.get() < 0.5:
+                    slider1.set(0.5)
         case 2:
-            percentage2.set((voltage2.get() / 5) * 100)
+            percentage2.set(((voltage2.get() - .5) / 4) * 100)
             pot2Voltage.config(text=str(format(voltage2.get(), f".{3}f")) + " V")
-            pot2Value.config(text=str(format((voltage2.get() / 5) * 100, f".{1}f")) + " %")
+            pot2Value.config(text=str(format(percentage2.get(), f".{1}f")) + " %")
+            if percentage2.get() < 0 or percentage2.get() > 100:
+                pot2Value.config(text="N/A")
+                if voltage2.get() > 4.5:
+                    slider2.set(4.5)
+                if voltage2.get() < 0.5:
+                    slider2.set(0.5)
         case 3:
-            voltage1.set((percentage1.get()/100)*5)
+            voltage1.set((percentage1.get()/100)*4 + .5)
             pot1Voltage.config(text=str(format(voltage1.get(), f".{3}f")) + " V")
             pot1Value.config(text=str(format(percentage1.get(), f".{1}f") + " %"))
+            slider1.set(voltage1.get())
+            slider3.set(percentage1.get())
         case 4:
-            voltage2.set((percentage2.get()/100)*5)
+            voltage2.set((percentage2.get()/100)*4 + .5)
             pot2Voltage.config(text=str(format(voltage2.get(), f".{3}f")) + " V")
             pot2Value.config(text=str(format(percentage2.get(), f".{1}f") + " %"))
+            slider2.set(voltage2.get())
+            slider4.set(percentage2.get())
+
+
+def sliderUpdate(case):
+    match case:
+        case 1:
+            voltage1.set(slider1.get())
+        case 2: 
+            voltage2.set(slider2.get())
+        case 3:
+            percentage1.set(slider3.get())
+        case 4:
+            percentage2.set(slider4.get())
+    displayUpdate(case)
 
 def toggleSliderType():
     global sliderPercentDisplay
@@ -103,8 +136,62 @@ def toggleSliderType():
         potSliderPercent4.grid(column=7, row=4)
         sliderPercentDisplay = True
 
+def applyCustom(number, voltage):
+    if number == 1:
+        responseApply1.config(text="")
+        try:
+            customInput1.get()
+        except Exception:
+            responseApply1.config(text="Invalid Input")
+            return
+        if voltage:
+            if validateVoltage(customInput1.get()):
+                voltage1.set(customInput1.get())
+                responseApply1.config(text="Applied")
+                displayUpdate(1)
+            else:
+                responseApply1.config(text="Invalid Input")
+        else:
+            if validatePercentage(customInput1.get()):
+                percentage1.set(customInput1.get())
+                responseApply1.config(text="Applied")
+                displayUpdate(3)
+            else:
+                responseApply1.config(text="Invalid Input")
+    else:
+        responseApply2.config(text="")
+        try:
+            customInput2.get()
+        except Exception:
+            responseApply2.config(text="Invalid Input")
+            return
+        if voltage:
+            if validateVoltage(customInput2.get()):
+                voltage2.set(customInput2.get())
+                responseApply2.config(text="Applied")
+                displayUpdate(2)
+            else:
+                responseApply2.config(text="Invalid Input")
+        else:
+            if validatePercentage(customInput2.get()):
+                percentage2.set(customInput2.get())
+                responseApply2.config(text="Applied")
+                displayUpdate(4)
+            else:
+                responseApply2.config(text="Invalid Input")
 
+def validateVoltage(voltage):
+    try:
+        return voltage <= 5 and voltage >= 0
+    except Exception:
+        return False
 
+def validatePercentage(percent):
+    try:
+        return percent <= 100 and percent >= 0
+    except Exception:
+        return False
+   
 R1 = Radiobutton(
     root,
     text="COM1",
@@ -235,77 +322,77 @@ pot2Lable = Label(
 )
 pot1Value = Label(
     root,
-    text="0 %",
+    text="0.0 %",
     font=("font", headingfontsize),
     background=backgroundcolor,
     fg=titletextcolor,
 )
 pot2Value = Label(
     root,
-    text="0 %",
+    text="0.0 %",
     font=("font", headingfontsize),
     background=backgroundcolor,
     fg=titletextcolor,
 )
 pot1Voltage = Label(
     root,
-    text="0 V",
+    text="0.500 V",
     font=("font", headingfontsize),
     background=backgroundcolor,
     fg=titletextcolor,
 )
 pot2Voltage = Label(
     root,
-    text="0 V",
+    text="0.500 V",
     font=("font", headingfontsize),
     background=backgroundcolor,
     fg=titletextcolor,
 )
 potSlider1 = Scale(
     root,
-    variable=voltage1,
-    from_=0,
-    to=5,
+    variable=slider1,
+    from_=0.5,
+    to=4.5,
     orient=HORIZONTAL,
     length=150,
     resolution=.005,
-    command=lambda slider: sliderUpdate(1),
+    command=lambda case: sliderUpdate(1),
     background=backgroundcolor,
     fg=textcolor,
 )
 potSlider2 = Scale(
     root,
-    variable=voltage2,
-    from_=0,
-    to=5,
+    variable=slider2,
+    from_=0.5,
+    to=4.5,
     orient=HORIZONTAL,
     length=150,
     resolution=.005,
-    command=lambda slider:  sliderUpdate(2),
+    command=lambda case:  sliderUpdate(2),
     background=backgroundcolor,
     fg=textcolor,
 )
 potSliderPercent3 = Scale(
     root,
-    variable=percentage1,
+    variable=slider3,
     from_=0,
     to=100,
     orient=HORIZONTAL,
     length=150,
     resolution=.1,
-    command=lambda slider: sliderUpdate(3),
+    command=lambda case: sliderUpdate(3),
     background=backgroundcolor,
     fg=textcolor,
 )
 potSliderPercent4 = Scale(
     root,
-    variable=percentage2,
+    variable=slider4,
     from_=0,
     to=100,
     orient=HORIZONTAL,
     length=150,
     resolution=.1,
-    command=lambda slider:  sliderUpdate(4),
+    command=lambda case: sliderUpdate(4),
     background=backgroundcolor,
     fg=textcolor,
 )
@@ -323,6 +410,20 @@ currentSliderState = Label(
     font=("font", smallfontsize),
     background=backgroundcolor,
     fg=textcolor,
+)
+responseApply1 = Label(
+    root,
+    text="",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
+)
+responseApply2 = Label(
+    root,
+    text="",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
 )
 
 pot1Lable.grid(column=6, row=1, padx=10)
@@ -362,7 +463,27 @@ customInputEntry2 = Entry(
     highlightthickness=2,
     width=10
 )
+applyCustomButton1 = Button(
+    root,
+    text="Apply",
+    font=("font", smallfontsize),
+    background=backgroundcolor,
+    fg=textcolor,
+    command=lambda:applyCustom(1, currentSliderState.cget("text") == "Current State: Voltage"),
+)
+applyCustomButton2 = Button(
+    root,
+    text="Apply",
+    font=("font", smallfontsize),
+    background=backgroundcolor,
+    fg=textcolor,
+    command=lambda:applyCustom(2, currentSliderState.cget("text") == "Current State: Voltage"),
+)
 customInputEntry1.grid(column=6, row=5, pady=10, rowspan=2)
 customInputEntry2.grid(column=7, row=5, pady=10, rowspan=2)
+responseApply1.grid(column=6, row=7, pady=10, rowspan=2)
+responseApply2.grid(column=7, row=7, pady=10, rowspan=2)
+applyCustomButton1.grid(column=6, row=6, pady=10, rowspan=2)
+applyCustomButton2.grid(column=7, row=6, pady=10, rowspan=2)
 comnumber.set(1)
 root.mainloop()
