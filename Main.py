@@ -1,6 +1,6 @@
 import serial
 
-from tkinter import HORIZONTAL, Button, Canvas, DoubleVar, Label, Radiobutton, Scale, Tk, IntVar
+from tkinter import HORIZONTAL, Button, Canvas, DoubleVar, Entry, Label, Radiobutton, Scale, Tk, IntVar
 
 font = "Century"
 tinyfontsize = 15
@@ -26,6 +26,8 @@ voltage1 = DoubleVar()
 voltage2 = DoubleVar()
 percentage1 = DoubleVar()
 percentage2 = DoubleVar()
+customInput1 = DoubleVar()
+customInput2 = DoubleVar()
 comnumber.set(1)
 
 
@@ -331,8 +333,36 @@ pot2Value.grid(column=7, row=2, padx=10)
 pot2Voltage.grid(column=7, row=3, padx=10)
 potSliderPercent3.grid(column=6, row=4)
 potSliderPercent4.grid(column=7, row=4)
-currentSliderState.grid(column=6, columnspan=3, row=5, rowspan=2)
-toggleSliderButton.grid(column=6, columnspan=3, row=6, rowspan=2, padx=10, pady=10)
+currentSliderState.grid(column=6, columnspan=3, row=10)
+toggleSliderButton.grid(column=6, columnspan=3, row=11, rowspan=2, padx=10, pady=10)
 
+customInputEntry1 = Entry(
+    root,
+    textvariable=customInput1,
+    font=("font", smallfontsize),
+    background=backgroundcolor,
+    insertbackground=textcolor,
+    justify="right",
+    fg=textcolor,
+    borderwidth=0,
+    highlightcolor=textcolor,
+    highlightthickness=2,
+    width=10
+)
+customInputEntry2 = Entry(
+    root,
+    textvariable=customInput2,
+    font=("font", smallfontsize),
+    background=backgroundcolor,
+    insertbackground=textcolor,
+    justify="right",
+    fg=textcolor,
+    borderwidth=0,
+    highlightcolor=textcolor,
+    highlightthickness=2,
+    width=10
+)
+customInputEntry1.grid(column=6, row=5, pady=10, rowspan=2)
+customInputEntry2.grid(column=7, row=5, pady=10, rowspan=2)
 comnumber.set(1)
 root.mainloop()
