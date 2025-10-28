@@ -43,6 +43,7 @@ def changeCom(update):
         port = "COM" + str(comnumber.get())
         arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
         connectFeedback.config(bg="green")
+        sendVoltages()
         return True
     except serial.serialutil.SerialException:
         if update:
@@ -191,6 +192,43 @@ def validatePercentage(percent):
         return percent <= 100 and percent >= 0
     except Exception:
         return False
+    
+def sendVoltages():
+    global arduino
+    if(arduino != None):
+        try:
+            voltagea = round(voltage1.get() / 5 * 255) + 1
+            voltageb = round(voltage2.get() / 5 * 255) + 1
+            sendString = ("[" + str(voltagea) + "," + str(voltageb) + "]")
+            encodedvoltages = sendString.encode('utf-8') 
+            arduino.write(encodedvoltages)
+            print(f"Sent: {sendString.strip()}")
+            root.after(20, sendVoltages)
+        except serial.SerialException as e:
+            print("Failure!")
+            arduino = None
+            connectFeedback.config(bg="red")
+
+    else:
+        print("NO Connection To Arduino")
+
+# def recieveVoltages():
+#     global arduino
+#     if(arduino != None):
+#         print("REading")
+#         try:
+#             line = arduino.readline()
+#             if arduino.in_waiting > 0:
+#                 decoded_line = line.decode('utf-8').strip()
+#                 print(f"Received: {decoded_line}")
+#             root.after(20, recieveVoltages)
+#         except serial.SerialException as e:
+#             print("Failure!")
+#             arduino = None
+#             connectFeedback.config(bg="red")
+
+            
+            
    
 R1 = Radiobutton(
     root,
