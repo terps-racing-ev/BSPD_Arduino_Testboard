@@ -33,6 +33,8 @@ percentage2 = DoubleVar()
 customInput1 = DoubleVar()
 customInput2 = DoubleVar()
 comnumber.set(1)
+voltage1.set(0.5)
+voltage2.set(0.5)
 
 
 def changeCom(update):
