@@ -86,6 +86,8 @@ def displayUpdate(case):
                     slider1.set(4.5)
                 if voltage1.get() < 0.5:
                     slider1.set(0.5)
+            slider1.set(voltage1.get())
+            slider3.set(percentage1.get())
         case 2:
             percentage2.set(((voltage2.get() - .5) / 4) * 100)
             pot2Voltage.config(text=str(format(voltage2.get(), f".{3}f")) + " V")
@@ -96,6 +98,8 @@ def displayUpdate(case):
                     slider2.set(4.5)
                 if voltage2.get() < 0.5:
                     slider2.set(0.5)
+            slider2.set(voltage2.get())
+            slider4.set(percentage2.get())
         case 3:
             voltage1.set((percentage1.get()/100)*4 + .5)
             pot1Voltage.config(text=str(format(voltage1.get(), f".{3}f")) + " V")
@@ -525,5 +529,46 @@ responseApply1.grid(column=6, row=7, pady=10, rowspan=2)
 responseApply2.grid(column=7, row=7, pady=10, rowspan=2)
 applyCustomButton1.grid(column=6, row=6, pady=10, rowspan=2)
 applyCustomButton2.grid(column=7, row=6, pady=10, rowspan=2)
+
+actualValue1 = Label(
+    root,
+    text="0.0 %",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
+)
+actualValue2 = Label(
+    root,
+    text="0.0 %",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
+)
+actualVoltage1 = Label(
+    root,
+    text="0.500 V",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
+)
+actualVoltage2 = Label(
+    root,
+    text="0.500 V",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
+)
+actualVoltageLable = Label(
+    root,
+    text="Actual Voltages",
+    font=("font", headingfontsize),
+    background=backgroundcolor,
+    fg=titletextcolor,
+)
+actualValue1.grid(column=6, row=15)
+actualValue2.grid(column=7, row=15)
+actualVoltage1.grid(column=6, row=16)
+actualVoltage2.grid(column=7, row=16)
+actualVoltageLable.grid(column=6, columnspan=2, row=14)
 comnumber.set(1)
 root.mainloop()
