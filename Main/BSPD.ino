@@ -1,4 +1,4 @@
-#include "C:\wamp64\bspd_test_module\AD5245\AD5245.cpp"
+#include "AD5245.cpp"
 #include <Wire.h>
 #define BAUD_RATE 115200
 #define BUFFER_SIZE 24
