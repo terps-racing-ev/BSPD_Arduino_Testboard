@@ -197,9 +197,6 @@ void loop() {
       toTransmit += voltages[i];
       toTransmit += ",";
     }
-    toTransmit += String( dpot_pos_1 );
-    toTransmit += ",";
-    toTransmit += String( dpot_pos_2 );
     toTransmit += "]";
     Serial.println(toTransmit);
 }
