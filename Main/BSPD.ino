@@ -2,6 +2,15 @@
 #include <Wire.h>
 #define BAUD_RATE 115200
 #define BUFFER_SIZE 24
+#define DP_PRECISION 2
+#define DEBUG_CH_0 A0
+#define DEBUG_CH_1 A1
+#define DEBUG_CH_2 A2
+#define DEBUG_CH_3 A3
+#define DEBUG_CH_4 7  // We can't use A4 and A5 because those are shorted to the I2C bus
+#define DEBUG_CH_5 8  // so if you turn on I2C you lose A4 and A5 as ADC pins. Therefore, DEBUG CH 4 and 5 will be digital debug channels
+
+// If you connect anything to A4/A5 during I2C startup, it will hang forever. So don't use A4 and A5 as debug channel inputs. 
 
 TwoWire* i2c_default_twowire = &Wire;
 AD5245 ch1(0x2D, i2c_default_twowire);     //  Ch1 has AD0 pulled HIGH, so it has addr 0x2D
@@ -19,6 +28,9 @@ byte tmp_index = 0;
 int dpot_pos_1 = 0;
 int dpot_pos_2 = 0;
 
+String voltages[8];
+String toTransmit;
+
 void setup() {
     // Begin serial and wire
     Serial.begin(BAUD_RATE);
@@ -26,6 +38,16 @@ void setup() {
     
     Wire.begin();
     Wire.setClock(400000);
+    Serial.println("Wire setClock OK.");
+
+    // Set up the analog pins to be inputs
+    pinMode(DEBUG_CH_0, INPUT);
+    pinMode(DEBUG_CH_1, INPUT);
+    pinMode(DEBUG_CH_2, INPUT);
+    pinMode(DEBUG_CH_3, INPUT);
+    pinMode(DEBUG_CH_4, INPUT);
+    pinMode(DEBUG_CH_5, INPUT); 
+    Serial.println("Debug signal channels OK.");
 
     // Start talking with ch1
     i2c_started_successfully = ch1.begin();
@@ -144,8 +166,40 @@ void loop() {
     // still carry out background tasks such as sending updates
     // to the laptop
     
-    // [BSPD Faulted?, Voltage on Ch1, Voltage on Ch2]
-    
-    
+    /*
+    * Signals we have to read:
+    * Ch1 Real Voltage (ANALOG)
+    * Ch2 Real Voltage (ANALOG)
+    * Accelerator Reference (ANALOG)
+    * Brake Reference (ANALOG)
+    * BSPD Fault/OK Signal (DIGITAL)
+    * Acc and Brake (Debug Signal) (DIGITAL)
+    *
+    * This code doesn't care what's connected to what pins,
+    * it just reads voltages off 4 analog channels/2 digital channels and reports
+    * them back to the computer. 
+    */
+    voltages[0] = String( analogRead(DEBUG_CH_0) * (5.0 / 1023.0), DP_PRECISION );
+    delayMicroseconds(150);
+    voltages[1] = String( analogRead(DEBUG_CH_1) * (5.0 / 1023.0), DP_PRECISION );
+    delayMicroseconds(150);
+    voltages[2] = String( analogRead(DEBUG_CH_2) * (5.0 / 1023.0), DP_PRECISION );
+    delayMicroseconds(150);
+    voltages[3] = String( analogRead(DEBUG_CH_3) * (5.0 / 1023.0), DP_PRECISION );
+    delayMicroseconds(150);
+    voltages[4] = (digitalRead(DEBUG_CH_4) == HIGH ? "HI" : "LO");
+    delayMicroseconds(150);
+    voltages[5] = (digitalRead(DEBUG_CH_5) == HIGH ? "HI" : "LO");
+    delayMicroseconds(150);
 
+    toTransmit = "[";
+    for (i = 0; i < 6; i += 1) {
+      toTransmit += voltages[i];
+      toTransmit += ",";
+    }
+    toTransmit += String( dpot_pos_1 );
+    toTransmit += ",";
+    toTransmit += String( dpot_pos_2 );
+    toTransmit += "]";
+    Serial.println(toTransmit);
 }
