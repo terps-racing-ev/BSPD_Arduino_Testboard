@@ -1,13 +1,12 @@
+import ctypes
 import serial
 import customtkinter as ctk
-from tkinter import DoubleVar, Image, IntVar, StringVar
+from tkinter import DoubleVar, IntVar, StringVar
 from PIL import Image, ImageTk
 
 font = "Century"
-tinyfontsize = 15
 smallfontsize = 20
 headingfontsize = 27
-titlefontsize = 35
 backgroundcolor = "#000000"
 textcolor = "#FFFFFF"
 titletextcolor = "#EAB504"
@@ -17,33 +16,25 @@ ctk.set_default_color_theme("blue")
 
 root = ctk.CTk()
 root.geometry("1220x800")
-image = Image.open("assets/icon.png")
-photo = ImageTk.PhotoImage(image)
-root.wm_iconphoto(True, photo)
+root.iconbitmap('assets/icon.ico')
 root.title("TREV-4 BSPD Test Board Control")
 root.configure(fg_color=backgroundcolor)
 root.resizable(False, False)
 
 sliderPercentDisplay = True
-
-global arduino
 arduino = None
-comnumber = IntVar()
-voltage1 = DoubleVar()
-voltage2 = DoubleVar()
+
+comnumber = IntVar(value=1)
+voltage1 = DoubleVar(value=0.5)
+voltage2 = DoubleVar(value=0.5)
 slider1 = DoubleVar()
 slider2 = DoubleVar()
 slider3 = DoubleVar()
 slider4 = DoubleVar()
 percentage1 = DoubleVar()
 percentage2 = DoubleVar()
-customInput1 = StringVar()
-customInput2 = StringVar()
-customInput1.set("0")
-customInput2.set("0")
-comnumber.set(1)
-voltage1.set(0.5)
-voltage2.set(0.5)
+customInput1 = StringVar(value="0")
+customInput2 = StringVar(value="0")
 
 def changeCom(update):
     try:
@@ -224,83 +215,86 @@ def sendVoltages():
     else:
         print("NO Connection To Arduino")
 
+# Left: COM controls
+comControls = ctk.CTkFrame(root, fg_color=backgroundcolor)
 
-R1 = ctk.CTkRadioButton(root, text="COM1", variable=comnumber, value=1, command=lambda: changeCom(True))
-R2 = ctk.CTkRadioButton(root, text="COM2", variable=comnumber, value=2, command=lambda: changeCom(True))
-R3 = ctk.CTkRadioButton(root, text="COM3", variable=comnumber, value=3, command=lambda: changeCom(True))
-R4 = ctk.CTkRadioButton(root, text="COM4", variable=comnumber, value=4, command=lambda: changeCom(True))
-R5 = ctk.CTkRadioButton(root, text="COM5", variable=comnumber, value=5, command=lambda: changeCom(True))
-R6 = ctk.CTkRadioButton(root, text="COM6", variable=comnumber, value=6, command=lambda: changeCom(True))
-R7 = ctk.CTkRadioButton(root, text="COM7", variable=comnumber, value=7, command=lambda: changeCom(True))
+center_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
+brake_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
+throttle_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 
-comLabel = ctk.CTkLabel(root, text="Select COM Port", font=(font, headingfontsize), text_color=titletextcolor)
-connectLabel = ctk.CTkLabel(root, text="Connected To Arduino?", font=(font, smallfontsize), text_color=textcolor)
-scanButton = ctk.CTkButton(root, text="Scan COM Ports", font=(font, smallfontsize), command=scanCom)
-connectFeedback = ctk.CTkFrame(root, width=150, height=150, fg_color="red")
 
-comLabel.grid(column=1, row=1, pady=25, columnspan=5)
-connectLabel.grid(column=2, row=2, rowspan=2)
-connectFeedback.grid(column=2, row=3, rowspan=10)
-R1.grid(column=1, row=2, padx=10)
-R2.grid(column=1, row=3, padx=10)
-R3.grid(column=1, row=4, padx=10)
-R4.grid(column=1, row=5, padx=10)
-R5.grid(column=1, row=6, padx=10)
-R6.grid(column=1, row=7, padx=10)
-R7.grid(column=1, row=8, padx=10)
-scanButton.grid(column=1, row=9, pady=20, padx=10)
+# ------------------ Pack Frames ------------------
+comControls.pack(side="left", fill="y", expand=False, padx=20, pady=5)
+brake_frame.pack(side="left", fill="y", expand=False, padx=10, pady=5)
+center_frame.pack(side="left", fill="y", expand=False,padx=10, pady=5)
+throttle_frame.pack(side="left", fill="y", expand=False, padx=10, pady=5)
+center_frame.pack_propagate(False)
 
-pot1Lable = ctk.CTkLabel(root, text="Brake Sensor", font=(font, headingfontsize), text_color=titletextcolor)
-pot2Lable = ctk.CTkLabel(root, text="Throttle Sensor", font=(font, headingfontsize), text_color=titletextcolor)
-pot1Value = ctk.CTkLabel(root, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
-pot2Value = ctk.CTkLabel(root, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
-pot1Voltage = ctk.CTkLabel(root, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
-pot2Voltage = ctk.CTkLabel(root, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
 
-potSlider1 = ctk.CTkSlider(root, variable=slider1, from_=0.5, to=4.5, number_of_steps=800, command=lambda case: sliderUpdate(1))
-potSlider2 = ctk.CTkSlider(root, variable=slider2, from_=0.5, to=4.5, number_of_steps=800, command=lambda case: sliderUpdate(2))
-potSlider1.grid(column=6, row=4)
-potSlider2.grid(column=7, row=4)
-toggleSliderButton = ctk.CTkButton(root, text="Toggle Input Type", font=(font, smallfontsize), command=toggleSliderType)
-currentSliderState = ctk.CTkLabel(root, text="Current State: Percentage", font=(font, smallfontsize), text_color=textcolor)
-responseApply1 = ctk.CTkLabel(root, text="", font=(font, headingfontsize), text_color=titletextcolor)
-responseApply2 = ctk.CTkLabel(root, text="", font=(font, headingfontsize), text_color=titletextcolor)
+comLabel = ctk.CTkLabel(comControls, text="Select COM Port", font=(font, headingfontsize), text_color=titletextcolor)
+R_frame = ctk.CTkFrame(comControls, fg_color=backgroundcolor)
+R1 = ctk.CTkRadioButton(R_frame, text="COM1", variable=comnumber, value=1, command=lambda: changeCom(True))
+R2 = ctk.CTkRadioButton(R_frame, text="COM2", variable=comnumber, value=2, command=lambda: changeCom(True))
+R3 = ctk.CTkRadioButton(R_frame, text="COM3", variable=comnumber, value=3, command=lambda: changeCom(True))
+R4 = ctk.CTkRadioButton(R_frame, text="COM4", variable=comnumber, value=4, command=lambda: changeCom(True))
+R5 = ctk.CTkRadioButton(R_frame, text="COM5", variable=comnumber, value=5, command=lambda: changeCom(True))
+R6 = ctk.CTkRadioButton(R_frame, text="COM6", variable=comnumber, value=6, command=lambda: changeCom(True))
+R7 = ctk.CTkRadioButton(R_frame, text="COM7", variable=comnumber, value=7, command=lambda: changeCom(True))
+scanButton = ctk.CTkButton(comControls, text="Scan COM Ports", font=(font, smallfontsize), command=lambda: scanCom())
+connectLabel = ctk.CTkLabel(comControls, text="Connected To Arduino?", font=(font, smallfontsize), text_color=textcolor)
+connectFeedback = ctk.CTkFrame(comControls, width=150, height=150, fg_color="red")
 
-pot1Lable.grid(column=6, row=1, padx=10)
-pot1Value.grid(column=6, row=2, padx=10)
-pot1Voltage.grid(column=6, row=3, padx=10)
-pot2Lable.grid(column=7, row=1, padx=10)
-pot2Value.grid(column=7, row=2, padx=10)
-pot2Voltage.grid(column=7, row=3, padx=10)
-currentSliderState.grid(column=6, columnspan=3, row=10)
-toggleSliderButton.grid(column=6, columnspan=3, row=11, rowspan=2, padx=10, pady=10)
+# Pack left frame widgets
+comLabel.pack(pady=(0, 20))
+R_frame.pack()
+for r in [R1, R2, R3, R4, R5, R6, R7]:
+    r.pack(anchor="w", pady=2)
+scanButton.pack(pady=10)
+connectLabel.pack(pady=10)
+connectFeedback.pack(pady=10)
 
-customInputEntry1 = ctk.CTkEntry(root, textvariable=customInput1, font=(font, smallfontsize), justify="right", width=100)
-customInputEntry2 = ctk.CTkEntry(root, textvariable=customInput2, font=(font, smallfontsize), justify="right", width=100)
+# ------------------ Brake Frame Widgets ------------------
+pot1Lable = ctk.CTkLabel(brake_frame, text="Brake Sensor", font=(font, headingfontsize), text_color=titletextcolor)
+pot1Value = ctk.CTkLabel(brake_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
+pot1Voltage = ctk.CTkLabel(brake_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
+potSlider1 = ctk.CTkSlider(brake_frame, variable=slider1, from_=0.5, to=4.5, number_of_steps=800, command=lambda case: sliderUpdate(1))
+customInputEntry1 = ctk.CTkEntry(brake_frame, textvariable=customInput1, font=(font, smallfontsize), justify="right", width=100)
+applyCustomButton1 = ctk.CTkButton(brake_frame, text="Apply", font=(font, smallfontsize), command=lambda: applyCustom(1, currentSliderState.cget("text") == "Current State: Voltage"))
+responseApply1 = ctk.CTkLabel(brake_frame, text="", font=(font, headingfontsize), text_color=titletextcolor)
 
-applyCustomButton1 = ctk.CTkButton(root, text="Apply", font=(font, smallfontsize),
-                                   command=lambda: applyCustom(1, currentSliderState.cget("text") == "Current State: Voltage"))
-applyCustomButton2 = ctk.CTkButton(root, text="Apply", font=(font, smallfontsize),
-                                   command=lambda: applyCustom(2, currentSliderState.cget("text") == "Current State: Voltage"))
+for w in [pot1Lable, pot1Value, pot1Voltage, potSlider1, customInputEntry1, applyCustomButton1, responseApply1]:
+    w.pack(pady=5)
 
-customInputEntry1.grid(column=6, row=5, pady=10, rowspan=2)
-customInputEntry2.grid(column=7, row=5, pady=10, rowspan=2)
-responseApply1.grid(column=6, row=7, pady=10, rowspan=2)
-responseApply2.grid(column=7, row=7, pady=10, rowspan=2)
-applyCustomButton1.grid(column=6, row=6, pady=10, rowspan=2)
-applyCustomButton2.grid(column=7, row=6, pady=10, rowspan=2)
+# ------------------ Throttle Frame Widgets ------------------
+pot2Lable = ctk.CTkLabel(throttle_frame, text="Throttle Sensor", font=(font, headingfontsize), text_color=titletextcolor)
+pot2Value = ctk.CTkLabel(throttle_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
+pot2Voltage = ctk.CTkLabel(throttle_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
+potSlider2 = ctk.CTkSlider(throttle_frame, variable=slider2, from_=0.5, to=4.5, number_of_steps=800, command=lambda case: sliderUpdate(2))
+customInputEntry2 = ctk.CTkEntry(throttle_frame, textvariable=customInput2, font=(font, smallfontsize), justify="right", width=100)
+applyCustomButton2 = ctk.CTkButton(throttle_frame, text="Apply", font=(font, smallfontsize), command=lambda: applyCustom(2, currentSliderState.cget("text") == "Current State: Voltage"))
+responseApply2 = ctk.CTkLabel(throttle_frame, text="", font=(font, headingfontsize), text_color=titletextcolor)
 
-actualValue1 = ctk.CTkLabel(root, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
-actualValue2 = ctk.CTkLabel(root, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
-actualVoltage1 = ctk.CTkLabel(root, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
-actualVoltage2 = ctk.CTkLabel(root, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
-actualVoltageLable = ctk.CTkLabel(root, text="Actual Voltages", font=(font, headingfontsize), text_color=titletextcolor)
 
-actualValue1.grid(column=6, row=15)
-actualValue2.grid(column=7, row=15)
-actualVoltage1.grid(column=6, row=16)
-actualVoltage2.grid(column=7, row=16)
-actualVoltageLable.grid(column=6, columnspan=2, row=14)
+for w in [pot2Lable, pot2Value, pot2Voltage, potSlider2, customInputEntry2, applyCustomButton2, responseApply2]:
+    w.pack(pady=5)
 
-comnumber.set(1)
+currentSliderState = ctk.CTkLabel(center_frame, text="Current State: Percent", font=(font, smallfontsize), text_color=textcolor)
+toggleSliderButton = ctk.CTkButton(center_frame, text="Toggle Input Type", font=(font, smallfontsize), command=lambda: toggleSliderType())
+
+currentSliderState.pack(pady=10)
+toggleSliderButton.pack(pady=10)
+
+# ------------------ Actual Voltages ------------------
+spacingFrame250y = ctk.CTkCanvas(center_frame, bg=backgroundcolor, width=1, height=250, highlightthickness=0)
+spacingFrame50yb = ctk.CTkCanvas(brake_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
+spacingFrame50yt = ctk.CTkCanvas(throttle_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
+actualVoltageLable = ctk.CTkLabel(center_frame, text="Actual Voltages", font=(font, headingfontsize), text_color=titletextcolor)
+actualValue1 = ctk.CTkLabel(brake_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
+actualVoltage1 = ctk.CTkLabel(brake_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
+actualValue2 = ctk.CTkLabel(throttle_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
+actualVoltage2 = ctk.CTkLabel(throttle_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
+
+for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2]:
+    w.pack(pady=5)
+
 root.mainloop()
