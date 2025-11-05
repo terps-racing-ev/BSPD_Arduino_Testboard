@@ -1,7 +1,6 @@
-import ctypes
 import serial
 import customtkinter as ctk
-from tkinter import DoubleVar, IntVar, StringVar
+from tkinter import NW, DoubleVar, IntVar, StringVar
 
 font = "Century"
 smallfontsize = 20
@@ -22,6 +21,7 @@ root.resizable(False, False)
 
 sliderPercentDisplay = True
 arduino = None
+timer = 0
 
 comnumber = IntVar(value=1)
 voltage1 = DoubleVar(value=0.5)
@@ -34,6 +34,7 @@ percentage1 = DoubleVar()
 percentage2 = DoubleVar()
 customInput1 = StringVar(value="0")
 customInput2 = StringVar(value="0")
+
 
 def changeCom(update):
     try:
@@ -214,19 +215,33 @@ def sendVoltages():
     else:
         print("NO Connection To Arduino")
 
+def waitForFault():
+    pass
+
+def increaseTimer():
+    global timer
+    timer += 1
+    sec = timer%1000
+    
+    
+
 # Left: COM controls
 comControls = ctk.CTkFrame(root, fg_color=backgroundcolor)
 
 center_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 brake_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 throttle_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
+faultTimer_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
+divLine1 = ctk.CTkCanvas(root, bg=backgroundcolor, width=5, height=750, highlightthickness=0)
+divLine1.create_line(2,0,2,750,fill="grey",width=2)
 
 
-# ------------------ Pack Frames ------------------
-comControls.pack(side="left", fill="y", expand=False, padx=20, pady=5)
-brake_frame.pack(side="left", fill="y", expand=False, padx=10, pady=5)
-center_frame.pack(side="left", fill="y", expand=False,padx=10, pady=5)
-throttle_frame.pack(side="left", fill="y", expand=False, padx=10, pady=5)
+comControls.pack(side="left", expand=False, padx=20, pady=5, anchor=NW)
+brake_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
+center_frame.pack(side="left", expand=False,padx=10, pady=5, anchor=NW)
+throttle_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
+divLine1.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
+faultTimer_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
 center_frame.pack_propagate(False)
 
 
@@ -243,7 +258,6 @@ scanButton = ctk.CTkButton(comControls, text="Scan COM Ports", font=(font, small
 connectLabel = ctk.CTkLabel(comControls, text="Connected To Arduino?", font=(font, smallfontsize), text_color=textcolor)
 connectFeedback = ctk.CTkFrame(comControls, width=150, height=150, fg_color="red")
 
-# Pack left frame widgets
 comLabel.pack(pady=(0, 20))
 R_frame.pack()
 for r in [R1, R2, R3, R4, R5, R6, R7]:
@@ -252,7 +266,6 @@ scanButton.pack(pady=10)
 connectLabel.pack(pady=10)
 connectFeedback.pack(pady=10)
 
-# ------------------ Brake Frame Widgets ------------------
 pot1Lable = ctk.CTkLabel(brake_frame, text="Brake Sensor", font=(font, headingfontsize), text_color=titletextcolor)
 pot1Value = ctk.CTkLabel(brake_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
 pot1Voltage = ctk.CTkLabel(brake_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
@@ -264,7 +277,6 @@ responseApply1 = ctk.CTkLabel(brake_frame, text="", font=(font, headingfontsize)
 for w in [pot1Lable, pot1Value, pot1Voltage, potSlider1, customInputEntry1, applyCustomButton1, responseApply1]:
     w.pack(pady=5)
 
-# ------------------ Throttle Frame Widgets ------------------
 pot2Lable = ctk.CTkLabel(throttle_frame, text="Throttle Sensor", font=(font, headingfontsize), text_color=titletextcolor)
 pot2Value = ctk.CTkLabel(throttle_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
 pot2Voltage = ctk.CTkLabel(throttle_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
@@ -283,7 +295,7 @@ toggleSliderButton = ctk.CTkButton(center_frame, text="Toggle Input Type", font=
 currentSliderState.pack(pady=10)
 toggleSliderButton.pack(pady=10)
 
-# ------------------ Actual Voltages ------------------
+
 spacingFrame250y = ctk.CTkCanvas(center_frame, bg=backgroundcolor, width=1, height=250, highlightthickness=0)
 spacingFrame50yb = ctk.CTkCanvas(brake_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
 spacingFrame50yt = ctk.CTkCanvas(throttle_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
@@ -294,6 +306,13 @@ actualValue2 = ctk.CTkLabel(throttle_frame, text="0.0 %", font=(font, headingfon
 actualVoltage2 = ctk.CTkLabel(throttle_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
 
 for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2]:
+    w.pack(pady=5)
+
+timerTitle = ctk.CTkLabel(faultTimer_frame, text="Time Elapsed", font=(font, headingfontsize), text_color=titletextcolor)
+timer = ctk.CTkLabel(faultTimer_frame, text="0.000", font=(font, headingfontsize), text_color=textcolor)
+testButton = ctk.CTkButton(faultTimer_frame, text="Run Fault Test", font=(font, smallfontsize), command=lambda: scanCom())
+
+for w in [timerTitle, timer]:
     w.pack(pady=5)
 
 root.mainloop()
