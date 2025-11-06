@@ -1,3 +1,4 @@
+import time
 import serial
 import customtkinter as ctk
 from tkinter import NW, DoubleVar, IntVar, StringVar
@@ -21,7 +22,7 @@ root.resizable(False, False)
 
 sliderPercentDisplay = True
 arduino = None
-timer = 0
+runningTest = False
 
 comnumber = IntVar(value=1)
 voltage1 = DoubleVar(value=0.5)
@@ -215,13 +216,21 @@ def sendVoltages():
     else:
         print("NO Connection To Arduino")
 
-def waitForFault():
-    pass
-
-def increaseTimer():
-    global timer
-    timer += 1
-    sec = timer%1000
+start_time = 0
+def waitForFault():  
+    global runningTest
+    global start_time
+    if(not runningTest):
+        start_time = time.perf_counter()
+        runningTest = True
+    if(): #COND FOR NO FAULT
+        root.after(1, waitForFault)
+    if(): #COND FOR FAULT
+        stop_time = time.perf_counter()
+        timeElapsed = stop_time - start_time
+        timer.configure(text=f"{timeElapsed:.3f}")
+        i = 0
+        runningTest = False
     
     
 
@@ -310,9 +319,9 @@ for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLab
 
 timerTitle = ctk.CTkLabel(faultTimer_frame, text="Time Elapsed", font=(font, headingfontsize), text_color=titletextcolor)
 timer = ctk.CTkLabel(faultTimer_frame, text="0.000", font=(font, headingfontsize), text_color=textcolor)
-testButton = ctk.CTkButton(faultTimer_frame, text="Run Fault Test", font=(font, smallfontsize), command=lambda: scanCom())
+testButton = ctk.CTkButton(faultTimer_frame, text="Run Fault Test", font=(font, smallfontsize), command=waitForFault)
 
-for w in [timerTitle, timer]:
+for w in [timerTitle, timer, testButton]:
     w.pack(pady=5)
 
 root.mainloop()
