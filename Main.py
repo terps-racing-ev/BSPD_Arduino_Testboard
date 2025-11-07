@@ -14,7 +14,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 root = ctk.CTk()
-root.geometry("1220x800")
+root.geometry("1130x800")
 root.iconbitmap('assets/icon.ico')
 root.title("TREV-4 BSPD Test Board Control")
 root.configure(fg_color=backgroundcolor)
@@ -232,7 +232,18 @@ def waitForFault():
         i = 0
         runningTest = False
     
-    
+def timedFaultTest(testDuration):
+    global runningTest
+    global start_time
+    if(not runningTest):
+        start_time = time.perf_counter()
+        runningTest = True
+    if(time.perf_counter() - start_time > testDuration or False):
+        pass
+    else:
+        root.after(.1, timedFaultTest)
+        
+        
 
 # Left: COM controls
 comControls = ctk.CTkFrame(root, fg_color=backgroundcolor)
@@ -243,7 +254,6 @@ throttle_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 faultTimer_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 divLine1 = ctk.CTkCanvas(root, bg=backgroundcolor, width=5, height=750, highlightthickness=0)
 divLine1.create_line(2,0,2,750,fill="grey",width=2)
-
 
 comControls.pack(side="left", expand=False, padx=20, pady=5, anchor=NW)
 brake_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
