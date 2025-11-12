@@ -1,4 +1,4 @@
-#include "AD5245.cpp"
+#include "C:\wamp64\bspd_test_module\AD5245\AD5245.cpp"
 #include <Wire.h>
 #define BAUD_RATE 115200
 #define BUFFER_SIZE 24
@@ -16,6 +16,7 @@ TwoWire* i2c_default_twowire = &Wire;
 AD5245 ch1(0x2D, i2c_default_twowire);     //  Ch1 has AD0 pulled HIGH, so it has addr 0x2D
 AD5245 ch2(0x2C, i2c_default_twowire);     //  Ch2 has AD0 pulled to GND, so it has addr 0x2C
 bool i2c_started_successfully = false;
+bool i2c_write_success = false;
 
 char cmd_buffer[BUFFER_SIZE];
 char last_char;
@@ -144,12 +145,18 @@ void loop() {
         if (dpot_pos_1 < 1 || dpot_pos_1 > 256) {
           Serial.println("Ch1 invalid setting for d-pot!");
         } else {
-          // TODO: make it actually talk with the chip
+          i2c_write_success = (ch1.write(dpot_pos_1) == 0);
+          if (!i2c_write_success) {
+            Serial.println("Ch1 I2C write failure");
+          }
         }
         if (dpot_pos_2 < 1 || dpot_pos_2 > 256) {
           Serial.println("Ch2 invalid setting for d-pot!");
         } else {
-          // TODO: make it actually talk with the chip
+          i2c_write_success = (ch2.write(dpot_pos_2) == 0);
+          if (!i2c_write_success) {
+            Serial.println("Ch2 I2C write failure");
+          }
         }
       }
 
@@ -170,13 +177,13 @@ void loop() {
     * Signals we have to read:
     * Ch1 Real Voltage (ANALOG)
     * Ch2 Real Voltage (ANALOG)
+    * BSPD Fault/OK Signal (DIGITAL)
     * Accelerator Reference (ANALOG)
     * Brake Reference (ANALOG)
-    * BSPD Fault/OK Signal (DIGITAL)
     * Acc and Brake (Debug Signal) (DIGITAL)
     *
     * This code doesn't care what's connected to what pins,
-    * it just reads voltages off 4 analog channels/2 digital channels and reports
+    * it just reads voltages off 6 channels (4 analog, 2 digital) and reports
     * them back to the computer. 
     */
     voltages[0] = String( analogRead(DEBUG_CH_0) * (5.0 / 1023.0), DP_PRECISION );
