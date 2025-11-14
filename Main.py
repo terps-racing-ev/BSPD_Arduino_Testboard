@@ -24,6 +24,8 @@ sliderPercentDisplay = True
 arduino = None
 runningTest = False
 
+
+
 comnumber = IntVar(value=1)
 voltage1 = DoubleVar(value=0.5)
 voltage2 = DoubleVar(value=0.5)
@@ -45,7 +47,8 @@ def changeCom(update):
         port = "COM" + str(comnumber.get())
         arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
         connectFeedback.configure(fg_color="green")
-        sendVoltages()
+        #sendVoltages()
+        receiveData()
         return True
     except serial.serialutil.SerialException:
         if update:
@@ -208,7 +211,7 @@ def sendVoltages():
             encodedvoltages = sendString.encode('utf-8')
             arduino.write(encodedvoltages)
             print(f"Sent: {sendString.strip()}")
-            root.after(20, sendVoltages)
+            root.after(1000, sendVoltages)
         except serial.SerialException:
             print("Failure!")
             arduino = None
@@ -216,20 +219,63 @@ def sendVoltages():
     else:
         print("NO Connection To Arduino")
 
+def receiveData():
+    global arduino
+    if(arduino != None):
+        try:
+            if(arduino.in_waiting > 0):
+                print("Got Data")
+                line = arduino.readline()
+                line = line.decode('ascii')
+                print(line)
+                if(line[0] == "["):
+                    try:
+                        splitVals = line.split(",")
+                        V1 = splitVals[0]
+                        V1 = V1[1:]
+                        V1 = float(V1)
+                        print(V1)
+                        V2 = splitVals[1]
+                        V2 = float(V2)
+                        AcRef = splitVals[2]
+                        AcRef = float(AcRef)
+                        BrRef = splitVals[3]
+                        BrRef = float(BrRef)
+                        FAULT = splitVals[4]
+                        if(FAULT == "HI"):
+                            FAULT = True
+                        else:
+                            FAULT = False    
+                        AccBrakeDebug = splitVals[5]
+                        if(AccBrakeDebug == "HI]"):
+                            AccBrakeDebug = True
+                        else:
+                            AccBrakeDebug = False
+                    except:
+                        pass
+        except:
+            pass
+        root.after(10, receiveData)
+
+
+
 start_time = 0
-def waitForFault():  
+def waitForFault(): 
+    global timerVal
     global runningTest
     global start_time
     if(not runningTest):
         start_time = time.perf_counter()
         runningTest = True
-    if(): #COND FOR NO FAULT
+        timerVal = 0
+    if(True): #COND FOR NO FAULT
         root.after(1, waitForFault)
+        timerVal += 1
+        timer.configure(text=f"{timerVal/1000:.3f}")
     if(): #COND FOR FAULT
         stop_time = time.perf_counter()
         timeElapsed = stop_time - start_time
         timer.configure(text=f"{timeElapsed:.3f}")
-        i = 0
         runningTest = False
     
 def timedFaultTest(testDuration):
@@ -238,10 +284,10 @@ def timedFaultTest(testDuration):
     if(not runningTest):
         start_time = time.perf_counter()
         runningTest = True
-    if(time.perf_counter() - start_time > testDuration or False):
+    if(time.perf_counter() - start_time > testDuration):
         pass
     else:
-        root.after(.1, timedFaultTest)
+        root.after(1, timedFaultTest)
         
         
 
