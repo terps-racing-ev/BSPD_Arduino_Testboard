@@ -47,7 +47,6 @@ def changeCom(update):
         port = "COM" + str(comnumber.get())
         arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
         connectFeedback.configure(fg_color="green")
-        #sendVoltages()
         receiveData()
         return True
     except serial.serialutil.SerialException:
@@ -199,25 +198,20 @@ def validatePercentage(percent):
         return 0 <= percent <= 100
     except Exception:
         return False
-
-
-def sendVoltages():
+    
+def sendData():
     global arduino
-    if arduino is not None:
-        try:
-            voltagea = round(voltage1.get() / 5 * 255) + 1
-            voltageb = round(voltage2.get() / 5 * 255) + 1
-            sendString = f"[{voltagea},{voltageb}]"
-            encodedvoltages = sendString.encode('utf-8')
-            arduino.write(encodedvoltages)
-            print(f"Sent: {sendString.strip()}")
-            root.after(1000, sendVoltages)
-        except serial.SerialException:
-            print("Failure!")
-            arduino = None
-            connectFeedback.configure(fg_color="red")
-    else:
-        print("NO Connection To Arduino")
+    try:
+        voltagea = round(voltage1.get() / 5 * 255) + 1
+        voltageb = round(voltage2.get() / 5 * 255) + 1
+        sendString = f"[{voltagea},{voltageb}]"
+        encodedvoltages = sendString.encode('ascii')
+        arduino.write(encodedvoltages)
+        print(f"Sent: {sendString.strip()}")
+    except serial.SerialException:
+        print("Failure!")
+        arduino = None
+        connectFeedback.configure(fg_color="red")
 
 def receiveData():
     global arduino
@@ -255,7 +249,9 @@ def receiveData():
                         pass
         except:
             pass
+        sendData()
         root.after(10, receiveData)
+        
 
 
 
