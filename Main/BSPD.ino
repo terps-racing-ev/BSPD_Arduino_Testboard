@@ -67,7 +67,7 @@ void loop() {
     // Read instruction from computer
     if (Serial.available() > 0) {
       last_char = (char)Serial.read();
-      Serial.println(last_char);
+      //Serial.println(last_char);
 
       // Case "[": move buffer index to the front of the buffer
       // and clear buffer
@@ -175,12 +175,13 @@ void loop() {
     
     /*
     * Signals we have to read:
-    * Ch1 Real Voltage (ANALOG)
-    * Ch2 Real Voltage (ANALOG)
-    * BSPD Fault/OK Signal (DIGITAL)
-    * Accelerator Reference (ANALOG)
-    * Brake Reference (ANALOG)
-    * Acc and Brake (Debug Signal) (DIGITAL)
+    * [1, 2, 3, 4, 5, 6]
+    * [1] Ch1 Real Voltage (ANALOG)
+    * [2] Ch2 Real Voltage (ANALOG)
+    * [3] Accelerator Threshold Reference (ANALOG)
+    * [4] Brake Threshold Reference (ANALOG)
+    * [5] Overall BSPD Fault/OK Signal (DIGITAL)
+    * [6] Acc and Brake (Debug Signal) (DIGITAL)
     *
     * This code doesn't care what's connected to what pins,
     * it just reads voltages off 6 channels (4 analog, 2 digital) and reports
@@ -202,7 +203,7 @@ void loop() {
     toTransmit = "[";
     for (i = 0; i < 6; i += 1) {
       toTransmit += voltages[i];
-      toTransmit += ",";
+      toTransmit += ((i == 5) ? "" : ",");
     }
     toTransmit += "]";
     Serial.println(toTransmit);
