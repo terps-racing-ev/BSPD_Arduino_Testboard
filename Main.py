@@ -215,6 +215,12 @@ def sendData():
 
 def receiveData():
     global arduino
+    global V1
+    global V2
+    global AcRef
+    global BrRef
+    global FAULT
+    global AccBrakeDebug
     if(arduino != None):
         try:
             if(arduino.in_waiting > 0):
@@ -225,23 +231,23 @@ def receiveData():
                 if(line[0] == "["):
                     try:
                         splitVals = line.split(",")
-                        V1 = splitVals[0]
+                        Voltage1 = splitVals[0]
                         V1 = V1[1:]
-                        V1 = float(V1)
+                        V1 = float(Voltage1)
                         print(V1)
-                        V2 = splitVals[1]
-                        V2 = float(V2)
-                        AcRef = splitVals[2]
-                        AcRef = float(AcRef)
-                        BrRef = splitVals[3]
-                        BrRef = float(BrRef)
-                        FAULT = splitVals[4]
-                        if(FAULT == "HI"):
+                        Voltage2 = splitVals[1]
+                        V2 = float(Voltage2)
+                        AcRefTemp = splitVals[2]
+                        AcRef = float(AcRefTemp)
+                        BrRefTemp = splitVals[3]
+                        BrRef = float(BrRefTemp)
+                        FAULTTemp = splitVals[4]
+                        if(FAULTTemp == "HI"):
                             FAULT = True
                         else:
                             FAULT = False    
-                        AccBrakeDebug = splitVals[5]
-                        if(AccBrakeDebug == "HI]"):
+                        AccBrakeDebugTemp = splitVals[5]
+                        if(AccBrakeDebugTemp == "HI]"):
                             AccBrakeDebug = True
                         else:
                             AccBrakeDebug = False
@@ -260,15 +266,18 @@ def waitForFault():
     global timerVal
     global runningTest
     global start_time
+    global FAULT
     if(not runningTest):
         start_time = time.perf_counter()
         runningTest = True
         timerVal = 0
-    if(True): #COND FOR NO FAULT
+        voltage1.set(AcRef + 0.1)
+        voltage2.set(BrRef + 0.1)
+    if(not FAULT):
         root.after(1, waitForFault)
         timerVal += 1
         timer.configure(text=f"{timerVal/1000:.3f}")
-    if(): #COND FOR FAULT
+    if(FAULT):
         stop_time = time.perf_counter()
         timeElapsed = stop_time - start_time
         timer.configure(text=f"{timeElapsed:.3f}")
