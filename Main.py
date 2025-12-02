@@ -37,6 +37,7 @@ percentage1 = DoubleVar()
 percentage2 = DoubleVar()
 customInput1 = StringVar(value="0")
 customInput2 = StringVar(value="0")
+stringTestDuration = StringVar(value="0")
 
 
 def changeCom(update):
@@ -266,37 +267,52 @@ def waitForFault():
     global timerVal
     global runningTest
     global start_time
-    global FAULT
-    if(not runningTest):
-        start_time = time.perf_counter()
-        runningTest = True
-        timerVal = 0
-        voltage1.set(AcRef + 0.1)
-        voltage2.set(BrRef + 0.1)
-    if(not FAULT):
-        root.after(1, waitForFault)
-        timerVal += 1
-        timer.configure(text=f"{timerVal/1000:.3f}")
-    if(FAULT):
-        stop_time = time.perf_counter()
-        timeElapsed = stop_time - start_time
-        timer.configure(text=f"{timeElapsed:.3f}")
-        runningTest = False
+    try:
+        if(not arduino == None):
+            if(not runningTest):
+                start_time = time.perf_counter()
+                runningTest = True
+                timerVal = 0
+                voltage1.set(AcRef + 0.1)
+                voltage2.set(BrRef + 0.1)
+            if(not FAULT):
+                root.after(1, waitForFault)
+                timerVal += 1
+                timer.configure(text=f"{timerVal/1000:.3f}")
+            if(FAULT):
+                stop_time = time.perf_counter()
+                timeElapsed = stop_time - start_time
+                timer.configure(text=f"{timeElapsed:.3f}")
+                runningTest = False
+    except Exception:
+        print("Test FAILED!")
     
-def timedFaultTest(testDuration):
+def timedFaultTest():
     global runningTest
     global start_time
-    if(not runningTest):
-        start_time = time.perf_counter()
-        runningTest = True
-    if(time.perf_counter() - start_time > testDuration):
-        pass
-    else:
-        root.after(1, timedFaultTest)
+    global timedTestDuration
+    if(arduino != None):
+        if(not runningTest):
+            start_time = time.perf_counter()
+            try:
+                timedTestDuration = float(stringTestDuration.get())
+                runningTest = True
+            except Exception:
+                print("Invalid Test Duration")
+                return
+        if(time.perf_counter() - start_time > timedTestDuration):
+            runningTest = False
+            if(FAULT):
+                pass
+                #Display Fault
+            else:
+                pass
+                #Display No Fault
+        else:
+            root.after(1, timedFaultTest())
         
         
 
-# Left: COM controls
 comControls = ctk.CTkFrame(root, fg_color=backgroundcolor)
 
 center_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
@@ -381,8 +397,13 @@ for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLab
 timerTitle = ctk.CTkLabel(faultTimer_frame, text="Time Elapsed", font=(font, headingfontsize), text_color=titletextcolor)
 timer = ctk.CTkLabel(faultTimer_frame, text="0.000", font=(font, headingfontsize), text_color=textcolor)
 testButton = ctk.CTkButton(faultTimer_frame, text="Run Fault Test", font=(font, smallfontsize), command=waitForFault)
+spacingFrame50y = ctk.CTkFrame(faultTimer_frame, fg_color=backgroundcolor, height= 75, width= 10)
+testDurationLabel = ctk.CTkLabel(faultTimer_frame, text="Timed Test", font=(font, headingfontsize), text_color=titletextcolor, justify="right")
+testDurationLabel2 = ctk.CTkLabel(faultTimer_frame, text="Test Duration (ms)", font=(font, smallfontsize), justify="right")
+testDurationEntry = ctk.CTkEntry(faultTimer_frame, textvariable=stringTestDuration, font=(font, smallfontsize), justify="right", width=75)
+timedFaultTestButton = ctk.CTkButton(faultTimer_frame, text="Start Test", font=(font, smallfontsize), command=timedFaultTest, bg_color=backgroundcolor)
 
-for w in [timerTitle, timer, testButton]:
+for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton]:
     w.pack(pady=5)
 
 root.mainloop()
