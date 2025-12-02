@@ -360,6 +360,7 @@ customInputEntry1 = ctk.CTkEntry(brake_frame, textvariable=customInput1, font=(f
 applyCustomButton1 = ctk.CTkButton(brake_frame, text="Apply", font=(font, smallfontsize), command=lambda: applyCustom(1, currentSliderState.cget("text") == "Current State: Voltage"))
 responseApply1 = ctk.CTkLabel(brake_frame, text="", font=(font, headingfontsize), text_color=titletextcolor)
 
+
 for w in [pot1Lable, pot1Value, pot1Voltage, potSlider1, customInputEntry1, applyCustomButton1, responseApply1]:
     w.pack(pady=5)
 
@@ -390,8 +391,12 @@ actualValue1 = ctk.CTkLabel(brake_frame, text="0.0 %", font=(font, headingfontsi
 actualVoltage1 = ctk.CTkLabel(brake_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
 actualValue2 = ctk.CTkLabel(throttle_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
 actualVoltage2 = ctk.CTkLabel(throttle_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
+refVoltageBrakeLable = ctk.CTkLabel(brake_frame, text="Ref Voltage", font=(font, headingfontsize), text_color=titletextcolor)
+refVoltageThrottleLabel = ctk.CTkLabel(throttle_frame, text="Ref Voltage", font=(font, headingfontsize), text_color=titletextcolor)
+refVoltageBrake = ctk.CTkLabel(brake_frame, text="0.000 V", font=(font, headingfontsize), text_color=titletextcolor)
+refVoltageThrottle = ctk.CTkLabel(throttle_frame, text="0.000 V", font=(font, headingfontsize), text_color=titletextcolor)
 
-for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2]:
+for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2, refVoltageBrakeLable, refVoltageThrottleLabel, refVoltageBrake, refVoltageThrottle]:
     w.pack(pady=5)
 
 timerTitle = ctk.CTkLabel(faultTimer_frame, text="Time Elapsed", font=(font, headingfontsize), text_color=titletextcolor)
