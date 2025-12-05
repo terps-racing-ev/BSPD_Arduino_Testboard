@@ -23,8 +23,7 @@ root.resizable(False, False)
 sliderPercentDisplay = True
 arduino = None
 runningTest = False
-
-
+start_time = 0
 
 comnumber = IntVar(value=1)
 voltage1 = DoubleVar(value=0.5)
@@ -193,7 +192,6 @@ def validateVoltage(voltage):
     except Exception:
         return False
 
-
 def validatePercentage(percent):
     try:
         return 0 <= percent <= 100
@@ -258,11 +256,7 @@ def receiveData():
             pass
         sendData()
         root.after(10, receiveData)
-        
 
-
-
-start_time = 0
 def waitForFault(): 
     global timerVal
     global runningTest
@@ -383,7 +377,6 @@ currentSliderState.pack(pady=10)
 toggleSliderButton.pack(pady=10)
 
 
-spacingFrame250y = ctk.CTkCanvas(center_frame, bg=backgroundcolor, width=1, height=250, highlightthickness=0)
 spacingFrame50yb = ctk.CTkCanvas(brake_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
 spacingFrame50yt = ctk.CTkCanvas(throttle_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
 actualVoltageLable = ctk.CTkLabel(center_frame, text="Actual Voltages", font=(font, headingfontsize), text_color=titletextcolor)
@@ -396,7 +389,7 @@ refVoltageThrottleLabel = ctk.CTkLabel(throttle_frame, text="Ref Voltage", font=
 refVoltageBrake = ctk.CTkLabel(brake_frame, text="0.000 V", font=(font, headingfontsize), text_color=titletextcolor)
 refVoltageThrottle = ctk.CTkLabel(throttle_frame, text="0.000 V", font=(font, headingfontsize), text_color=titletextcolor)
 
-for w in [spacingFrame50yb, spacingFrame50yt, spacingFrame250y, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2, refVoltageBrakeLable, refVoltageThrottleLabel, refVoltageBrake, refVoltageThrottle]:
+for w in [spacingFrame50yb, spacingFrame50yt, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2, refVoltageBrakeLable, refVoltageThrottleLabel, refVoltageBrake, refVoltageThrottle]:
     w.pack(pady=5)
 
 timerTitle = ctk.CTkLabel(faultTimer_frame, text="Time Elapsed", font=(font, headingfontsize), text_color=titletextcolor)
@@ -409,6 +402,15 @@ testDurationEntry = ctk.CTkEntry(faultTimer_frame, textvariable=stringTestDurati
 timedFaultTestButton = ctk.CTkButton(faultTimer_frame, text="Start Test", font=(font, smallfontsize), command=timedFaultTest, bg_color=backgroundcolor)
 
 for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton]:
+    w.pack(pady=5)
+
+faultLabel = ctk.CTkLabel(center_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
+faultStatus = ctk.CTkLabel(center_frame, text="Fault:False", font=(font, smallfontsize), justify="right")
+faultVoltage = ctk.CTkLabel(center_frame, text="0.000 V", font=(font, smallfontsize), justify="right")
+
+faultLabel.pack(pady=25)
+
+for w in [faultStatus, faultVoltage]:
     w.pack(pady=5)
 
 root.mainloop()
