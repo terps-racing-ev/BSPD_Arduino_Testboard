@@ -1,7 +1,7 @@
 import time
 import serial
 import customtkinter as ctk
-from tkinter import NW, DoubleVar, IntVar, StringVar
+from tkinter import NW, SW, DoubleVar, IntVar, StringVar
 
 font = "Century"
 smallfontsize = 20
@@ -313,8 +313,10 @@ center_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 brake_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 throttle_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 faultTimer_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
+faultStatus_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
 divLine1 = ctk.CTkCanvas(root, bg=backgroundcolor, width=5, height=750, highlightthickness=0)
 divLine1.create_line(2,0,2,750,fill="grey",width=2)
+
 
 comControls.pack(side="left", expand=False, padx=20, pady=5, anchor=NW)
 brake_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
@@ -322,6 +324,7 @@ center_frame.pack(side="left", expand=False,padx=10, pady=5, anchor=NW)
 throttle_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
 divLine1.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
 faultTimer_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
+faultStatus_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
 center_frame.pack_propagate(False)
 
 
@@ -404,11 +407,11 @@ timedFaultTestButton = ctk.CTkButton(faultTimer_frame, text="Start Test", font=(
 for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton]:
     w.pack(pady=5)
 
-faultLabel = ctk.CTkLabel(center_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
-faultStatus = ctk.CTkLabel(center_frame, text="Fault:False", font=(font, smallfontsize), justify="right")
-faultVoltage = ctk.CTkLabel(center_frame, text="0.000 V", font=(font, smallfontsize), justify="right")
+faultLabel = ctk.CTkLabel(root, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
+faultStatus = ctk.CTkLabel(faultStatus_frame, text="Fault:False", font=(font, smallfontsize), justify="right")
+faultVoltage = ctk.CTkLabel(faultStatus_frame, text="0.000 V", font=(font, smallfontsize), justify="right")
 
-faultLabel.pack(pady=25)
+faultLabel.pack(pady=10)
 
 for w in [faultStatus, faultVoltage]:
     w.pack(pady=5)

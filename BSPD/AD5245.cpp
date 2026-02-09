@@ -7,7 +7,7 @@
 //     URL: https://github.com/RobTillaart/AD5245
 
 
-#include "C:\wamp64\bspd_test_module\AD5245\AD5245.h"
+#include "AD5245.h"
 
 
 #define AD5245_WRITE            0x00
