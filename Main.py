@@ -1,7 +1,7 @@
 import time
 import serial
 import customtkinter as ctk
-from tkinter import NW, SW, DoubleVar, IntVar, StringVar
+from tkinter import NW, DoubleVar, IntVar, StringVar
 
 font = "Century"
 smallfontsize = 20
@@ -37,6 +37,7 @@ percentage2 = DoubleVar()
 customInput1 = StringVar(value="0")
 customInput2 = StringVar(value="0")
 stringTestDuration = StringVar(value="0")
+serialReset = IntVar(value=0)
 
 
 def changeCom(update):
@@ -44,6 +45,7 @@ def changeCom(update):
         global arduino
         if arduino is not None:
             arduino.close()
+        comnumber.set(11)
         port = "COM" + str(comnumber.get())
         arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
         connectFeedback.configure(fg_color="green")
@@ -206,9 +208,9 @@ def sendData():
         sendString = f"[{voltagea},{voltageb}]"
         encodedvoltages = sendString.encode('ascii')
         arduino.write(encodedvoltages)
-        print(f"Sent: {sendString.strip()}")
+        #print(f"Sent: {sendString.strip()}")
     except serial.SerialException:
-        print("Failure!")
+        #print("Failure!")
         arduino = None
         connectFeedback.configure(fg_color="red")
 
@@ -220,10 +222,15 @@ def receiveData():
     global BrRef
     global FAULT
     global AccBrakeDebug
+    serialReset.set(serialReset.get() + 1)
+    if(serialReset.get() > 200):
+        arduino.flush()
+        serialReset.set(0)
+        print("Flushed")
     if(arduino != None):
         try:
             if(arduino.in_waiting > 0):
-                print("Got Data")
+                #print("Got Data")
                 line = arduino.readline()
                 line = line.decode('ascii')
                 print(line)
@@ -233,13 +240,13 @@ def receiveData():
                         Voltage1 = splitVals[0]
                         V1 = V1[1:]
                         V1 = float(Voltage1)
-                        print(V1)
                         Voltage2 = splitVals[1]
                         V2 = float(Voltage2)
                         AcRefTemp = splitVals[2]
                         AcRef = float(AcRefTemp)
                         BrRefTemp = splitVals[3]
                         BrRef = float(BrRefTemp)
+                        
                         FAULTTemp = splitVals[4]
                         if(FAULTTemp == "HI"):
                             FAULT = True
@@ -254,7 +261,7 @@ def receiveData():
                         pass
         except:
             pass
-        sendData()
+        #sendData()
         root.after(10, receiveData)
 
 def waitForFault(): 
@@ -407,7 +414,7 @@ timedFaultTestButton = ctk.CTkButton(faultTimer_frame, text="Start Test", font=(
 for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton]:
     w.pack(pady=5)
 
-faultLabel = ctk.CTkLabel(root, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
+faultLabel = ctk.CTkLabel(faultStatus_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
 faultStatus = ctk.CTkLabel(faultStatus_frame, text="Fault:False", font=(font, smallfontsize), justify="right")
 faultVoltage = ctk.CTkLabel(faultStatus_frame, text="0.000 V", font=(font, smallfontsize), justify="right")
 

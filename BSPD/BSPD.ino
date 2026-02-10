@@ -1,4 +1,4 @@
-#include "AD5245.cpp"
+#include "AD5245.h"
 #include <Wire.h>
 #define BAUD_RATE 115200
 #define BUFFER_SIZE 24
