@@ -49,6 +49,7 @@ def changeCom(update):
         port = "COM" + str(comnumber.get())
         arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
         connectFeedback.configure(fg_color="green")
+        time.sleep(4)
         receiveData()
         return True
     except serial.serialutil.SerialException:
@@ -207,10 +208,11 @@ def sendData():
         voltageb = round(voltage2.get() / 5 * 255) + 1
         sendString = f"[{voltagea},{voltageb}]"
         encodedvoltages = sendString.encode('ascii')
+        print("Sending...")
         arduino.write(encodedvoltages)
-        #print(f"Sent: {sendString.strip()}")
+        print(f"Sent: {sendString.strip()}")
     except serial.SerialException:
-        #print("Failure!")
+        print("Failure!")
         arduino = None
         connectFeedback.configure(fg_color="red")
 
@@ -233,7 +235,7 @@ def receiveData():
                 #print("Got Data")
                 line = arduino.readline()
                 line = line.decode('ascii')
-                print(line)
+                #print(line)
                 if(line[0] == "["):
                     try:
                         splitVals = line.split(",")
@@ -261,7 +263,7 @@ def receiveData():
                         pass
         except:
             pass
-        #sendData()
+        root.after(5, sendData())
         root.after(10, receiveData)
 
 def waitForFault(): 
