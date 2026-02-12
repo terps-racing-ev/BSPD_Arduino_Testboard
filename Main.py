@@ -45,7 +45,6 @@ def changeCom(update):
         global arduino
         if arduino is not None:
             arduino.close()
-        comnumber.set(11)
         port = "COM" + str(comnumber.get())
         arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
         connectFeedback.configure(fg_color="green")
