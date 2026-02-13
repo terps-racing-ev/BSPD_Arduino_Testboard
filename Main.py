@@ -1,7 +1,8 @@
 import time
 import serial
 import customtkinter as ctk
-from tkinter import NW, DoubleVar, IntVar, StringVar
+from configs import *
+from tkinter import DoubleVar, IntVar, StringVar
 
 font = "Century"
 smallfontsize = 20
@@ -14,7 +15,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 root = ctk.CTk()
-root.geometry("1130x800")
+root.geometry("1110x800")
 root.iconbitmap('assets/icon.ico')
 root.title("TREV-4 BSPD Test Board Control")
 root.configure(fg_color=backgroundcolor)
@@ -26,9 +27,9 @@ runningTest = False
 start_time = 0
 
 comnumber = IntVar(value=1)
-voltage1 = DoubleVar(value=0.5)
+voltage1 = DoubleVar(value=brakeInitVoltage)
 lastVoltage1 = DoubleVar(value=0)
-voltage2 = DoubleVar(value=0.5)
+voltage2 = DoubleVar(value=throttleInitVoltage)
 lastVoltage2 = DoubleVar(value=0)
 slider1 = DoubleVar()
 slider2 = DoubleVar()
@@ -292,13 +293,15 @@ def waitForFault():
     global timerVal
     global runningTest
     global start_time
+    global AcRef
+    global BrRef
     try:
         if(not arduino == None):
             if(not runningTest):
                 start_time = time.perf_counter()
                 runningTest = True
                 timerVal = 0
-                voltage1.set(AcRef + 0.1)
+                voltage1.set(throttleFaultVoltage + 0.1)
                 voltage2.set(BrRef + 0.1)
             if(not FAULT):
                 root.after(1, waitForFault)
@@ -309,8 +312,9 @@ def waitForFault():
                 timeElapsed = stop_time - start_time
                 timer.configure(text=f"{timeElapsed:.3f}")
                 runningTest = False
-    except Exception:
+    except Exception as e:
         print("Test FAILED!")
+        raise(e)
     
 def timedFaultTest():
     global runningTest
@@ -334,28 +338,33 @@ def timedFaultTest():
                 pass
                 #Display No Fault
         else:
-            root.after(1, timedFaultTest())
+            root.after(1, timedFaultTest)
         
         
 
-comControls = ctk.CTkFrame(root, fg_color=backgroundcolor)
+top_row_container = ctk.CTkFrame(root, fg_color="transparent")
+top_row_container.pack(side="top", fill="both", expand=True)
 
-center_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
-brake_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
-throttle_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
-faultTimer_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
-faultStatus_frame = ctk.CTkFrame(root, fg_color=backgroundcolor)
-divLine1 = ctk.CTkCanvas(root, bg=backgroundcolor, width=5, height=750, highlightthickness=0)
-divLine1.create_line(2,0,2,750,fill="grey",width=2)
+bottom_row_container = ctk.CTkFrame(root, fg_color="transparent")
+bottom_row_container.pack(side="bottom", fill="x", pady=10)
+
+comControls = ctk.CTkFrame(top_row_container, fg_color=backgroundcolor)
+brake_frame = ctk.CTkFrame(top_row_container, fg_color=backgroundcolor)
+center_frame = ctk.CTkFrame(top_row_container, fg_color=backgroundcolor)
+throttle_frame = ctk.CTkFrame(top_row_container, fg_color=backgroundcolor)
+faultTimer_frame = ctk.CTkFrame(top_row_container, fg_color=backgroundcolor)
+
+faultStatus_frame = ctk.CTkFrame(bottom_row_container, fg_color=backgroundcolor)
 
 
-comControls.pack(side="left", expand=False, padx=20, pady=5, anchor=NW)
-brake_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
-center_frame.pack(side="left", expand=False,padx=10, pady=5, anchor=NW)
-throttle_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
-divLine1.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
-faultTimer_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
-faultStatus_frame.pack(side="bottom", expand=False, padx=10, pady=5)
+comControls.pack(side="left", expand=False, padx=20, pady=5, anchor="nw")
+brake_frame.pack(side="left", expand=False, padx=10, pady=5, anchor="nw")
+center_frame.pack(side="left", expand=False,padx=10, pady=5, anchor="nw")
+throttle_frame.pack(side="left", expand=False, padx=10, pady=5, anchor="nw")
+faultTimer_frame.pack(side="left", expand=False, padx=10, pady=5, anchor="nw")
+
+
+faultStatus_frame.pack(side="top", expand=False, padx=10, pady=5)
 
 
 comLabel = ctk.CTkLabel(comControls, text="Select COM Port", font=(font, headingfontsize), text_color=titletextcolor)
@@ -412,9 +421,10 @@ toggleSliderButton.pack(pady=10)
 
 spacingFrame50yb = ctk.CTkCanvas(brake_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
 spacingFrame50yt = ctk.CTkCanvas(throttle_frame, bg=backgroundcolor, width=1, height=50, highlightthickness=0)
-actualVoltageLable = ctk.CTkLabel(center_frame, text="Actual Voltages", font=(font, headingfontsize), text_color=titletextcolor)
+actualBreak = ctk.CTkLabel(brake_frame, text="Actual Brake Voltages:", font=(font, smallfontsize), text_color=titletextcolor)
 actualValue1 = ctk.CTkLabel(brake_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
 actualVoltage1 = ctk.CTkLabel(brake_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
+actualThrottle = ctk.CTkLabel(throttle_frame, text="Actual Throttle Voltages:", font=(font, smallfontsize), text_color=titletextcolor)
 actualValue2 = ctk.CTkLabel(throttle_frame, text="0.0 %", font=(font, headingfontsize), text_color=titletextcolor)
 actualVoltage2 = ctk.CTkLabel(throttle_frame, text="0.500 V", font=(font, headingfontsize), text_color=titletextcolor)
 refVoltageBrakeLable = ctk.CTkLabel(brake_frame, text="Ref Voltage", font=(font, headingfontsize), text_color=titletextcolor)
@@ -422,7 +432,7 @@ refVoltageThrottleLabel = ctk.CTkLabel(throttle_frame, text="Ref Voltage", font=
 refVoltageBrake = ctk.CTkLabel(brake_frame, text="0.000 V", font=(font, headingfontsize), text_color=titletextcolor)
 refVoltageThrottle = ctk.CTkLabel(throttle_frame, text="0.000 V", font=(font, headingfontsize), text_color=titletextcolor)
 
-for w in [spacingFrame50yb, spacingFrame50yt, actualVoltageLable, actualValue1, actualVoltage1, actualValue2, actualVoltage2, refVoltageBrakeLable, refVoltageThrottleLabel, refVoltageBrake, refVoltageThrottle]:
+for w in [spacingFrame50yb, spacingFrame50yt, actualBreak, actualThrottle, actualValue1, actualVoltage1, actualValue2, actualVoltage2, refVoltageBrakeLable, refVoltageThrottleLabel, refVoltageBrake, refVoltageThrottle]:
     w.pack(pady=5)
 
 timerTitle = ctk.CTkLabel(faultTimer_frame, text="Time Elapsed", font=(font, headingfontsize), text_color=titletextcolor)
@@ -438,12 +448,10 @@ for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, tes
     w.pack(pady=5)
 
 faultLabel = ctk.CTkLabel(faultStatus_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
-faultStatus = ctk.CTkLabel(faultStatus_frame, text="Fault:False", font=(font, smallfontsize), justify="right")
-faultVoltage = ctk.CTkLabel(faultStatus_frame, text="0.000 V", font=(font, smallfontsize), justify="right")
+faultFrame = ctk.CTkFrame(faultStatus_frame, width=75, height=75, fg_color="green")
+faultVoltage = ctk.CTkLabel(faultStatus_frame, text="0.000 V", font=(font, headingfontsize), justify="right")
 
-faultLabel.pack(pady=10)
-
-for w in [faultStatus, faultVoltage]:
+for w in [faultLabel, faultFrame]:
     w.pack(pady=5)
 
 
