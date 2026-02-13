@@ -448,7 +448,7 @@ for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, tes
     w.pack(pady=5)
 
 faultLabel = ctk.CTkLabel(faultStatus_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
-faultFrame = ctk.CTkFrame(faultStatus_frame, width=75, height=75, fg_color="green")
+faultFrame = ctk.CTkFrame(faultStatus_frame, width=150, height=150, fg_color="green")
 faultVoltage = ctk.CTkLabel(faultStatus_frame, text="0.000 V", font=(font, headingfontsize), justify="right")
 
 for w in [faultLabel, faultFrame]:
