@@ -236,7 +236,6 @@ def receiveData():
     if(serialReset.get() > 200):
         arduino.flush()
         serialReset.set(0)
-        print("Flushed")
     if(arduino != None):
         try:
             if(arduino.in_waiting > 0):
@@ -265,11 +264,22 @@ def receiveData():
                         else:
                             AccBrakeDebug = False
 
-                        if(serialReset.get() % 5 == 0):
+                        if(serialReset.get() % 25 == 0):
                             actualVoltage1.configure(text = f"{V1:.3f} V")
                             actualVoltage2.configure(text = f"{V2:.3f} V")
-                            actualValue1.configure(text=f"{((V1 - .5) / 4) * 100:.1f} %")
-                            actualValue2.configure(text=f"{((V2 - .5) / 4) * 100:.1f} %")
+                            refVoltageBrake.configure(text = f"{BrRef:.3f} V")
+                            refVoltageThrottle.configure(text = f"{AcRef:.3f} V")
+                            tempPercent1 = ((V1 - .5) / 4) * 100
+                            tempPercent2 = ((V2 - .5) / 4) * 100
+                            if(tempPercent1 > 100 or tempPercent1 < 0):
+                               actualValue1.configure(text="N/A") 
+                            else:
+                                actualValue1.configure(text=f"{tempPercent1:.1f} %")
+                            if(tempPercent2 > 100 or tempPercent2 < 0):
+                                actualValue2.configure(text="N/A")
+                            else:
+                                actualValue2.configure(text=f"{tempPercent1:.1f} %")
+                            
                     except Exception as e:
                         raise(e)
                         
@@ -345,8 +355,7 @@ center_frame.pack(side="left", expand=False,padx=10, pady=5, anchor=NW)
 throttle_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
 divLine1.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
 faultTimer_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
-faultStatus_frame.pack(side="left", expand=False, padx=10, pady=5, anchor=NW)
-center_frame.pack_propagate(False)
+faultStatus_frame.pack(side="bottom", expand=False, padx=10, pady=5)
 
 
 comLabel = ctk.CTkLabel(comControls, text="Select COM Port", font=(font, headingfontsize), text_color=titletextcolor)
