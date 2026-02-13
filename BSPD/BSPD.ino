@@ -1,6 +1,6 @@
 #include "AD5245.h"
 #include <Wire.h>
-#define BAUD_RATE 115200
+#define BAUD_RATE 9600
 #define BUFFER_SIZE 24
 #define DP_PRECISION 2
 #define DEBUG_CH_0 A0

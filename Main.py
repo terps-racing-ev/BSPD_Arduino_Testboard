@@ -27,7 +27,9 @@ start_time = 0
 
 comnumber = IntVar(value=1)
 voltage1 = DoubleVar(value=0.5)
+lastVoltage1 = DoubleVar(value=0)
 voltage2 = DoubleVar(value=0.5)
+lastVoltage2 = DoubleVar(value=0)
 slider1 = DoubleVar()
 slider2 = DoubleVar()
 slider3 = DoubleVar()
@@ -45,8 +47,9 @@ def changeCom(update):
         global arduino
         if arduino is not None:
             arduino.close()
+        comnumber.set(11)
         port = "COM" + str(comnumber.get())
-        arduino = serial.Serial(port=port, baudrate=115200, timeout=1)
+        arduino = serial.Serial(port=port, baudrate=9600, timeout=1, write_timeout=0)
         connectFeedback.configure(fg_color="green")
         time.sleep(4)
         receiveData()
@@ -215,6 +218,13 @@ def sendData():
         arduino = None
         connectFeedback.configure(fg_color="red")
 
+def checkSend():
+    if voltage1.get() != lastVoltage1.get() or voltage2.get() != lastVoltage2.get():
+        lastVoltage1.set(voltage1.get())
+        lastVoltage2.set(voltage2.get())
+        sendData()
+        root.after(10, checkSend)
+
 def receiveData():
     global arduino
     global V1
@@ -231,23 +241,24 @@ def receiveData():
     if(arduino != None):
         try:
             if(arduino.in_waiting > 0):
-                #print("Got Data")
                 line = arduino.readline()
+
                 line = line.decode('ascii')
-                #print(line)
+                print(line)
                 if(line[0] == "["):
                     try:
                         splitVals = line.split(",")
                         Voltage1 = splitVals[0]
-                        V1 = V1[1:]
+                        Voltage1 = Voltage1[1:]
                         V1 = float(Voltage1)
+                        print(V1)
+                        actualVoltage1.configure(text = f"{V1:.3f} V")
                         Voltage2 = splitVals[1]
                         V2 = float(Voltage2)
                         AcRefTemp = splitVals[2]
                         AcRef = float(AcRefTemp)
                         BrRefTemp = splitVals[3]
                         BrRef = float(BrRefTemp)
-                        
                         FAULTTemp = splitVals[4]
                         if(FAULTTemp == "HI"):
                             FAULT = True
@@ -258,12 +269,13 @@ def receiveData():
                             AccBrakeDebug = True
                         else:
                             AccBrakeDebug = False
-                    except:
-                        pass
-        except:
-            pass
-        root.after(5, sendData())
+                    except Exception as e:
+                        raise(e)
+                        
+        except Exception as e:
+            raise(e)
         root.after(10, receiveData)
+        root.after(5, checkSend)
 
 def waitForFault(): 
     global timerVal
@@ -423,5 +435,6 @@ faultLabel.pack(pady=10)
 
 for w in [faultStatus, faultVoltage]:
     w.pack(pady=5)
+
 
 root.mainloop()
