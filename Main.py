@@ -47,11 +47,10 @@ def changeCom(update):
         global arduino
         if arduino is not None:
             arduino.close()
-        comnumber.set(11)
         port = "COM" + str(comnumber.get())
+        connectFeedback.configure(fg_color="blue")
         arduino = serial.Serial(port=port, baudrate=9600, timeout=1, write_timeout=0)
         connectFeedback.configure(fg_color="green")
-        time.sleep(4)
         receiveData()
         return True
     except serial.serialutil.SerialException:
@@ -242,17 +241,13 @@ def receiveData():
         try:
             if(arduino.in_waiting > 0):
                 line = arduino.readline()
-
                 line = line.decode('ascii')
-                print(line)
                 if(line[0] == "["):
                     try:
                         splitVals = line.split(",")
                         Voltage1 = splitVals[0]
                         Voltage1 = Voltage1[1:]
                         V1 = float(Voltage1)
-                        print(V1)
-                        actualVoltage1.configure(text = f"{V1:.3f} V")
                         Voltage2 = splitVals[1]
                         V2 = float(Voltage2)
                         AcRefTemp = splitVals[2]
@@ -269,6 +264,12 @@ def receiveData():
                             AccBrakeDebug = True
                         else:
                             AccBrakeDebug = False
+
+                        if(serialReset.get() % 5 == 0):
+                            actualVoltage1.configure(text = f"{V1:.3f} V")
+                            actualVoltage2.configure(text = f"{V2:.3f} V")
+                            actualValue1.configure(text=f"{((V1 - .5) / 4) * 100:.1f} %")
+                            actualValue2.configure(text=f"{((V2 - .5) / 4) * 100:.1f} %")
                     except Exception as e:
                         raise(e)
                         
