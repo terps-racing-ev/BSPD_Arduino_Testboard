@@ -257,8 +257,10 @@ def receiveData():
                         FAULTTemp = splitVals[4]
                         if(FAULTTemp == "HI"):
                             FAULT = True
+                            faultFrame.configure(fg_color="red")
                         else:
                             FAULT = False    
+                            faultFrame.configure(fg_color="green")
                         AccBrakeDebugTemp = splitVals[5]
                         if(AccBrakeDebugTemp == "HI]"):
                             AccBrakeDebug = True
@@ -281,11 +283,10 @@ def receiveData():
                             else:
                                 actualValue2.configure(text=f"{tempPercent1:.1f} %")
                             
-                    except Exception as e:
-                        raise(e)
-                        
-        except Exception as e:
-            raise(e)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
         root.after(10, receiveData)
         root.after(5, checkSend)
 
@@ -302,7 +303,7 @@ def waitForFault():
                 runningTest = True
                 timerVal = 0
                 voltage1.set(throttleFaultVoltage + 0.1)
-                voltage2.set(BrRef + 0.1)
+                voltage2.set(brakeFaultVoltage + 0.1)
             if(not FAULT):
                 root.after(1, waitForFault)
                 timerVal += 1
