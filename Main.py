@@ -339,12 +339,12 @@ def timedFaultTest():
     global runningTest
     global start_time
     global timedTestDuration
+    global runningTest
     if(arduino != None):
         if(not runningTest):
             start_time = time.perf_counter()
             try:
                 timedTestDuration = float(stringTestDuration.get())
-                print(timedTestDuration)
                 runningTest = True
                 timedFaultTestButton.configure(state = tkinter.DISABLED)
                 testButton.configure(state = tkinter.DISABLED)
@@ -352,9 +352,9 @@ def timedFaultTest():
                 raise(e)
                 print("Invalid Test Duration")
                 return
-            
-        print(time.perf_counter() - start_time > timedTestDuration)
-        if(time.perf_counter() - start_time > timedTestDuration):
+            root.after(1, timedFaultTest)
+            return
+        if((time.perf_counter() - start_time) * 1000 > timedTestDuration):
             runningTest = False
             timedFaultTestButton.configure(state = tkinter.NORMAL)
             testButton.configure(state = tkinter.NORMAL)
