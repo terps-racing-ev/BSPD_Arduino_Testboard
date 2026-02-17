@@ -1,4 +1,5 @@
 import time
+import tkinter
 import serial
 import customtkinter as ctk
 from configs import *
@@ -41,6 +42,7 @@ customInput1 = StringVar(value="0")
 customInput2 = StringVar(value="0")
 stringTestDuration = StringVar(value="0")
 serialReset = IntVar(value=0)
+waitFaultIterator = IntVar(value=0)
 
 
 def changeCom(update):
@@ -302,15 +304,23 @@ def waitForFault():
                 start_time = time.perf_counter()
                 runningTest = True
                 timerVal = 0
+                waitFaultIterator.set(0)
                 voltage1.set(throttleFaultVoltage + 0.1)
                 voltage2.set(brakeFaultVoltage + 0.1)
                 displayUpdate(1)
                 displayUpdate(2)
+                timedFaultTestButton.configure(state = tkinter.DISABLED)
+                testButton.configure(state = tkinter.DISABLED)
             if(not FAULT):
                 root.after(1, waitForFault)
-                timerVal += 1
-                timer.configure(text=f"{timerVal/1000:.3f}")
+                waitFaultIterator.set(waitFaultIterator.get() + 1)
+                if(waitFaultIterator.get() > 25):
+                    timerVal += 342
+                    timer.configure(text=f"{timerVal/1000:.3f}")
+                    waitFaultIterator.set(0)
             if(FAULT):
+                timedFaultTestButton.configure(state = tkinter.NORMAL)
+                testButton.configure(state = tkinter.NORMAL)
                 stop_time = time.perf_counter()
                 timeElapsed = stop_time - start_time
                 timer.configure(text=f"{timeElapsed:.3f}")
@@ -320,6 +330,8 @@ def waitForFault():
                 displayUpdate(1)
                 displayUpdate(2)
     except Exception as e:
+        timedFaultTestButton.configure(state = tkinter.NORMAL)
+        testButton.configure(state = tkinter.NORMAL)
         print("Test FAILED!")
         raise(e)
     
@@ -334,6 +346,8 @@ def timedFaultTest():
                 timedTestDuration = float(stringTestDuration.get())
                 print(timedTestDuration)
                 runningTest = True
+                timedFaultTestButton.configure(state = tkinter.DISABLED)
+                testButton.configure(state = tkinter.DISABLED)
             except Exception as e:
                 raise(e)
                 print("Invalid Test Duration")
@@ -342,6 +356,8 @@ def timedFaultTest():
         print(time.perf_counter() - start_time > timedTestDuration)
         if(time.perf_counter() - start_time > timedTestDuration):
             runningTest = False
+            timedFaultTestButton.configure(state = tkinter.NORMAL)
+            testButton.configure(state = tkinter.NORMAL)
             if(FAULT):
                 timedTestResult.configure(fg_color = "red")
             else:
