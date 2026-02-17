@@ -304,6 +304,8 @@ def waitForFault():
                 timerVal = 0
                 voltage1.set(throttleFaultVoltage + 0.1)
                 voltage2.set(brakeFaultVoltage + 0.1)
+                displayUpdate(1)
+                displayUpdate(2)
             if(not FAULT):
                 root.after(1, waitForFault)
                 timerVal += 1
@@ -313,6 +315,10 @@ def waitForFault():
                 timeElapsed = stop_time - start_time
                 timer.configure(text=f"{timeElapsed:.3f}")
                 runningTest = False
+                voltage1.set(throttleInitVoltage)
+                voltage2.set(brakeInitVoltage)
+                displayUpdate(1)
+                displayUpdate(2)
     except Exception as e:
         print("Test FAILED!")
         raise(e)
@@ -326,18 +332,20 @@ def timedFaultTest():
             start_time = time.perf_counter()
             try:
                 timedTestDuration = float(stringTestDuration.get())
+                print(timedTestDuration)
                 runningTest = True
-            except Exception:
+            except Exception as e:
+                raise(e)
                 print("Invalid Test Duration")
                 return
+            
+        print(time.perf_counter() - start_time > timedTestDuration)
         if(time.perf_counter() - start_time > timedTestDuration):
             runningTest = False
             if(FAULT):
-                pass
-                #Display Fault
+                timedTestResult.configure(fg_color = "red")
             else:
-                pass
-                #Display No Fault
+                timedTestResult.configure(fg_color = "green")
         else:
             root.after(1, timedFaultTest)
         
@@ -444,8 +452,10 @@ testDurationLabel = ctk.CTkLabel(faultTimer_frame, text="Timed Test", font=(font
 testDurationLabel2 = ctk.CTkLabel(faultTimer_frame, text="Test Duration (ms)", font=(font, smallfontsize), justify="right")
 testDurationEntry = ctk.CTkEntry(faultTimer_frame, textvariable=stringTestDuration, font=(font, smallfontsize), justify="right", width=75)
 timedFaultTestButton = ctk.CTkButton(faultTimer_frame, text="Start Test", font=(font, smallfontsize), command=timedFaultTest, bg_color=backgroundcolor)
+timedTestResultLable = ctk.CTkLabel(faultTimer_frame, text="Test Result:", font=(font, headingfontsize), text_color=titletextcolor, justify="right")
+timedTestResult = ctk.CTkFrame(faultTimer_frame, width=150, height=150, fg_color="grey")
 
-for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton]:
+for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton, timedTestResultLable, timedTestResult]:
     w.pack(pady=5)
 
 faultLabel = ctk.CTkLabel(faultStatus_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
