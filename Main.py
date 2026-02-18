@@ -356,7 +356,6 @@ def timedFaultTest():
                 displayUpdate(2)
                 time.sleep(voltageChangePropagationDelay/1000)
             except Exception as e:
-                raise(e)
                 print("Invalid Test Duration")
                 return
             root.after(1, timedFaultTest)
