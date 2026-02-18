@@ -6,6 +6,8 @@ throttleInitVoltage = 0.5
 brakeFaultVoltage = 2
 throttleFaultVoltage = 2
 
+voltageChangePropagationDelay = 23 # ms
+
 
 
 

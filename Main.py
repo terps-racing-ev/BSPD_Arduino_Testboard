@@ -311,6 +311,7 @@ def waitForFault():
                 displayUpdate(2)
                 timedFaultTestButton.configure(state = tkinter.DISABLED)
                 testButton.configure(state = tkinter.DISABLED)
+                time.sleep(voltageChangePropagationDelay/1000)
             if(not FAULT):
                 root.after(1, waitForFault)
                 waitFaultIterator.set(waitFaultIterator.get() + 1)
@@ -336,6 +337,7 @@ def waitForFault():
         raise(e)
     
 def timedFaultTest():
+    print("runnning")
     global runningTest
     global start_time
     global timedTestDuration
@@ -348,13 +350,18 @@ def timedFaultTest():
                 runningTest = True
                 timedFaultTestButton.configure(state = tkinter.DISABLED)
                 testButton.configure(state = tkinter.DISABLED)
+                voltage1.set(throttleFaultVoltage + 0.1)
+                voltage2.set(brakeFaultVoltage + 0.1)
+                displayUpdate(1)
+                displayUpdate(2)
+                time.sleep(voltageChangePropagationDelay/1000)
             except Exception as e:
                 raise(e)
                 print("Invalid Test Duration")
                 return
             root.after(1, timedFaultTest)
             return
-        if((time.perf_counter() - start_time) * 1000 > timedTestDuration):
+        if((time.perf_counter() - start_time) * 1000 > timedTestDuration * .92):
             runningTest = False
             timedFaultTestButton.configure(state = tkinter.NORMAL)
             testButton.configure(state = tkinter.NORMAL)
@@ -362,6 +369,12 @@ def timedFaultTest():
                 timedTestResult.configure(fg_color = "red")
             else:
                 timedTestResult.configure(fg_color = "green")
+            voltage1.set(throttleInitVoltage)
+            voltage2.set(brakeInitVoltage)
+            displayUpdate(1)
+            displayUpdate(2)
+            timedTestActualDuration.configure(text=f"{(time.perf_counter() - start_time):.5f}")
+            start_time = 0
         else:
             root.after(1, timedFaultTest)
         
@@ -469,9 +482,11 @@ testDurationLabel2 = ctk.CTkLabel(faultTimer_frame, text="Test Duration (ms)", f
 testDurationEntry = ctk.CTkEntry(faultTimer_frame, textvariable=stringTestDuration, font=(font, smallfontsize), justify="right", width=75)
 timedFaultTestButton = ctk.CTkButton(faultTimer_frame, text="Start Test", font=(font, smallfontsize), command=timedFaultTest, bg_color=backgroundcolor)
 timedTestResultLable = ctk.CTkLabel(faultTimer_frame, text="Test Result:", font=(font, headingfontsize), text_color=titletextcolor, justify="right")
-timedTestResult = ctk.CTkFrame(faultTimer_frame, width=150, height=150, fg_color="grey")
+timedTestResult = ctk.CTkFrame(faultTimer_frame, width=150, height=75, fg_color="grey")
+timedTestActualDurationLabel = ctk.CTkLabel(faultTimer_frame, text="Actual Duration", font=(font, smallfontsize), bg_color=backgroundcolor, text_color=titletextcolor)
+timedTestActualDuration = ctk.CTkLabel(faultTimer_frame, text="0.00000", font=(font, smallfontsize), bg_color=backgroundcolor, text_color=textcolor)
 
-for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton, timedTestResultLable, timedTestResult]:
+for w in [timerTitle, timer, testButton, spacingFrame50y, testDurationLabel, testDurationLabel2, testDurationEntry, timedFaultTestButton, timedTestResultLable, timedTestResult, timedTestActualDurationLabel, timedTestActualDuration]:
     w.pack(pady=5)
 
 faultLabel = ctk.CTkLabel(faultStatus_frame, text="Fault Status",text_color=titletextcolor, font=(font, smallfontsize), justify="right")
