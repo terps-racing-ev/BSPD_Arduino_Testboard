@@ -7,8 +7,7 @@ brakeFaultVoltage = 2
 throttleFaultVoltage = 2
 
 voltageChangePropagationDelay = 23 # ms
-
-
+timeMultiplierForTimedTest = 0.948
 
 
 

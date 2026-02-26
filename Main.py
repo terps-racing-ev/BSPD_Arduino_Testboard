@@ -337,11 +337,11 @@ def waitForFault():
         raise(e)
     
 def timedFaultTest():
-    print("runnning")
     global runningTest
     global start_time
     global timedTestDuration
     global runningTest
+    global everFault
     if(arduino != None):
         if(not runningTest):
             start_time = time.perf_counter()
@@ -355,16 +355,17 @@ def timedFaultTest():
                 displayUpdate(1)
                 displayUpdate(2)
                 time.sleep(voltageChangePropagationDelay/1000)
+                everFault = False
             except Exception as e:
                 print("Invalid Test Duration")
                 return
             root.after(1, timedFaultTest)
             return
-        if((time.perf_counter() - start_time) * 1000 > timedTestDuration * .92):
+        if((time.perf_counter() - start_time) * 1000 > timedTestDuration * timeMultiplierForTimedTest):
             runningTest = False
             timedFaultTestButton.configure(state = tkinter.NORMAL)
             testButton.configure(state = tkinter.NORMAL)
-            if(FAULT):
+            if(everFault):
                 timedTestResult.configure(fg_color = "red")
             else:
                 timedTestResult.configure(fg_color = "green")
@@ -375,6 +376,8 @@ def timedFaultTest():
             timedTestActualDuration.configure(text=f"{(time.perf_counter() - start_time):.5f}")
             start_time = 0
         else:
+            if(FAULT and not everFault):
+                everFault = True
             root.after(1, timedFaultTest)
         
         
