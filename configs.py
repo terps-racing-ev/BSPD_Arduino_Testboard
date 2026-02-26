@@ -7,7 +7,7 @@ brakeFaultVoltage = 2
 throttleFaultVoltage = 2
 
 voltageChangePropagationDelay = 23 # ms
-timeMultiplierForTimedTest = 0.948 # Unfortunately Based on CPU and Memory Speeds of Host Device :(
+timeMultiplierForTimedTest = 0.94925 # Unfortunately Based on CPU and Memory Speeds of Host Device :(
 
 
 

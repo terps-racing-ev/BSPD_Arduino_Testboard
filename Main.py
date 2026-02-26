@@ -50,6 +50,7 @@ def changeCom(update):
         global arduino
         if arduino is not None:
             arduino.close()
+        comnumber.set(11)
         port = "COM" + str(comnumber.get())
         connectFeedback.configure(fg_color="blue")
         arduino = serial.Serial(port=port, baudrate=9600, timeout=1, write_timeout=0)
@@ -212,9 +213,7 @@ def sendData():
         voltageb = round(voltage2.get() / 5 * 255) + 1
         sendString = f"[{voltagea},{voltageb}]"
         encodedvoltages = sendString.encode('ascii')
-        print("Sending...")
         arduino.write(encodedvoltages)
-        print(f"Sent: {sendString.strip()}")
     except serial.SerialException:
         print("Failure!")
         arduino = None
