@@ -1,10 +1,10 @@
 # Here Configs For Startup Voltages along with Test Case Voltages are Stored #
 
-brakeInitVoltage = 0.5
-throttleInitVoltage = 0.5
+brakeInitVoltage = 2.5
+throttleInitVoltage = 2.5
 
-brakeFaultVoltage = 2
-throttleFaultVoltage = 2
+brakeFaultVoltage = 0
+throttleFaultVoltage = 5
 
 voltageChangePropagationDelay = 23 # ms
 timeMultiplierForTimedTest = 0.94925 # Unfortunately Based on CPU and Memory Speeds of Host Device :(

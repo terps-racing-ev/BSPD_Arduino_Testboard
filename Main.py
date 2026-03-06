@@ -50,7 +50,7 @@ def changeCom(update):
         global arduino
         if arduino is not None:
             arduino.close()
-        # comnumber.set(11)
+        comnumber.set(11)
         port = "COM" + str(comnumber.get())
         connectFeedback.configure(fg_color="blue")
         arduino = serial.Serial(port=port, baudrate=9600, timeout=1, write_timeout=0)
@@ -257,11 +257,11 @@ def receiveData():
                         BrRef = float(BrRefTemp)
                         FAULTTemp = splitVals[4]
                         if(FAULTTemp == "HI"):
-                            FAULT = True
-                            faultFrame.configure(fg_color="red")
-                        else:
-                            FAULT = False    
+                            FAULT = False
                             faultFrame.configure(fg_color="green")
+                        else:
+                            FAULT = True    
+                            faultFrame.configure(fg_color="red")
                         AccBrakeDebugTemp = splitVals[5]
                         if(AccBrakeDebugTemp == "HI]"):
                             AccBrakeDebug = True
@@ -304,8 +304,8 @@ def waitForFault():
                 runningTest = True
                 timerVal = 0
                 waitFaultIterator.set(0)
-                voltage1.set(throttleFaultVoltage + 0.1)
-                voltage2.set(brakeFaultVoltage + 0.1)
+                voltage1.set(throttleFaultVoltage)
+                voltage2.set(brakeFaultVoltage)
                 displayUpdate(1)
                 displayUpdate(2)
                 timedFaultTestButton.configure(state = tkinter.DISABLED)
@@ -349,8 +349,8 @@ def timedFaultTest():
                 runningTest = True
                 timedFaultTestButton.configure(state = tkinter.DISABLED)
                 testButton.configure(state = tkinter.DISABLED)
-                voltage1.set(throttleFaultVoltage + 0.1)
-                voltage2.set(brakeFaultVoltage + 0.1)
+                voltage1.set(throttleFaultVoltage)
+                voltage2.set(brakeFaultVoltage)
                 displayUpdate(1)
                 displayUpdate(2)
                 time.sleep(voltageChangePropagationDelay/1000)
